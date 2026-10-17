@@ -175,73 +175,6 @@ pub mod admin_api;
 /// Billing statements: append-only ledger of charges per subscription.
 pub mod statements;
 
-#[cfg(test)]
-mod init_adversarial_tests {
-    use super::*;
-    use soroban_sdk::testutils::Address as _;
-    use soroban_sdk::{Address, Env};
-
-    fn setup() -> (Env, Address, Address, Address) {
-        let env = Env::default();
-        env.mock_all_auths();
-        let contract_id = env.register(crate::SubscriptionVault, ());
-        let token = Address::generate(&env);
-        let admin = Address::generate(&env);
-        (env, contract_id, token, admin)
-    }
-
-    #[test]
-    fn init_happy_path_sets_state() {
-        let (env, contract_id, token, admin) = setup();
-        let client = crate::SubscriptionVaultClient::new(&env, &contract_id);
-        client.init(&token, &6u32, &admin, &1_000i128, &60u64);
-        assert_eq!(client.get_admin(), admin);
-        assert_eq!(client.get_token(), token);
-        assert_eq!(client.get_token_decimals(), 6u32);
-        assert_eq!(client.get_min_topup(), 1_000i128);
-        assert_eq!(client.get_grace_period(), 60u64);
-    }
-
-    #[test]
-    fn init_rejects_double_initialization() {
-        let (env, contract_id, token, admin) = setup();
-        let client = crate::SubscriptionVaultClient::new(&env, &contract_id);
-        client.init(&token, &6u32, &admin, &1_000i128, &60u64);
-        let other_admin = Address::generate(&env);
-        let res = client.try_init(&token, &6u32, &other_admin, &2_000i128, &120u64);
-        assert!(res.is_err());
-        // State unchanged after rejected re-init.
-        assert_eq!(client.get_admin(), admin);
-        assert_eq!(client.get_min_topup(), 1_000i128);
-        assert_eq!(client.get_grace_period(), 60u64);
-    }
-
-    #[test]
-    fn init_rejects_invalid_decimals() {
-        let (env, contract_id, token, admin) = setup();
-        let client = crate::SubscriptionVaultClient::new(&env, &contract_id);
-        let res = client.try_init(&token, &255u32, &admin, &1_000i128, &60u64);
-        assert!(res.is_err());
-    }
-
-    #[test]
-    fn init_rejects_negative_min_topup() {
-        let (env, contract_id, token, admin) = setup();
-        let client = crate::SubscriptionVaultClient::new(&env, &contract_id);
-        let res = client.try_init(&token, &6u32, &admin, &-1i128, &60u64);
-        assert!(res.is_err());
-    }
-
-    #[test]
-    fn init_accepts_zero_min_topup_and_zero_grace() {
-        let (env, contract_id, token, admin) = setup();
-        let client = crate::SubscriptionVaultClient::new(&env, &contract_id);
-        client.init(&token, &6u32, &admin, &0i128, &0u64);
-        assert_eq!(client.get_min_topup(), 0i128);
-        assert_eq!(client.get_grace_period(), 0u64);
-    }
-}
-
 
 /// Accounting: tracks total tokens accounted for across all subscriptions.
 pub mod accounting {
@@ -3556,6 +3489,9 @@ mod test_get_buyout_premium_bps;
 #[cfg(test)]
 mod test_subscription_transfer;
 
+#[cfg(test)]
+mod test_init_adversarial;
+
 /// ABI-hash regression guard.
 ///
 /// The hash is computed from the sorted, newline-joined list of all
@@ -3566,6 +3502,8 @@ mod test_subscription_transfer;
 ///
 /// **To update intentionally:** change only the `EXPECTED` constant below
 /// and document the ABI change in the PR description.
+#[cfg(test)]
+mod test_merchant_whitelist;
 #[cfg(test)]
 mod test_merchant_whitelist;
 
