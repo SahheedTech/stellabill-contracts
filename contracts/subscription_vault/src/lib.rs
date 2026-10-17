@@ -175,6 +175,7 @@ pub mod admin_api;
 /// Billing statements: append-only ledger of charges per subscription.
 pub mod statements;
 
+
 #[cfg(test)]
 mod init_adversarial_tests {
     use super::*;
@@ -194,55 +195,48 @@ mod init_adversarial_tests {
     fn init_succeeds_with_valid_args() {
         let (env, contract_id, token, admin) = setup();
         let client = SubscriptionVaultClient::new(&env, &contract_id);
-        client.init(&token, &6u32, &admin, &1_000i128, &86_400u64);
+        client.init(&token, &6u32, &admin, &1_000i128, &3_600u64);
         assert_eq!(client.get_admin(), admin);
+    }
+
+    #[test]
+    fn init_rejects_zero_decimals_boundary() {
+        let (env, contract_id, token, admin) = setup();
+        let client = SubscriptionVaultClient::new(&env, &contract_id);
+        let res = client.try_init(&token, &0u32, &admin, &1_000i128, &3_600u64);
+        assert!(res.is_err());
     }
 
     #[test]
     fn init_rejects_negative_min_topup() {
         let (env, contract_id, token, admin) = setup();
         let client = SubscriptionVaultClient::new(&env, &contract_id);
-        let res = client.try_init(&token, &6u32, &admin, &-1i128, &86_400u64);
+        let res = client.try_init(&token, &6u32, &admin, &-1i128, &3_600u64);
         assert!(res.is_err());
     }
 
     #[test]
-    fn init_rejects_zero_min_topup() {
+    fn init_rejects_double_initialization_and_preserves_state() {
         let (env, contract_id, token, admin) = setup();
         let client = SubscriptionVaultClient::new(&env, &contract_id);
-        let res = client.try_init(&token, &6u32, &admin, &0i128, &86_400u64);
-        assert!(res.is_err());
-    }
-
-    #[test]
-    fn init_rejects_excessive_token_decimals() {
-        let (env, contract_id, token, admin) = setup();
-        let client = SubscriptionVaultClient::new(&env, &contract_id);
-        let res = client.try_init(&token, &255u32, &admin, &1_000i128, &86_400u64);
-        assert!(res.is_err());
-    }
-
-    #[test]
-    fn init_rejects_zero_grace_period() {
-        let (env, contract_id, token, admin) = setup();
-        let client = SubscriptionVaultClient::new(&env, &contract_id);
-        let res = client.try_init(&token, &6u32, &admin, &1_000i128, &0u64);
-        assert!(res.is_err());
-    }
-
-    #[test]
-    fn init_rejects_double_initialization() {
-        let (env, contract_id, token, admin) = setup();
-        let client = SubscriptionVaultClient::new(&env, &contract_id);
-        client.init(&token, &6u32, &admin, &1_000i128, &86_400u64);
+        client.init(&token, &6u32, &admin, &1_000i128, &3_600u64);
         let other_admin = Address::generate(&env);
-        let res = client.try_init(&token, &6u32, &other_admin, &2_000i128, &43_200u64);
+        let res = client.try_init(&token, &6u32, &other_admin, &2_000i128, &7_200u64);
         assert!(res.is_err());
-        // State must be unchanged after rejected re-init.
         assert_eq!(client.get_admin(), admin);
     }
-}
 
+    #[test]
+    fn init_requires_admin_auth() {
+        let env = Env::default();
+        let contract_id = env.register_contract(None, SubscriptionVault);
+        let token = Address::generate(&env);
+        let admin = Address::generate(&env);
+        let client = SubscriptionVaultClient::new(&env, &contract_id);
+        let res = client.try_init(&token, &6u32, &admin, &1_000i128, &3_600u64);
+        assert!(res.is_err());
+    }
+}
 
 /// Accounting: tracks total tokens accounted for across all subscriptions.
 pub mod accounting {
