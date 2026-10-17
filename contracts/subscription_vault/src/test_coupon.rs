@@ -1,6 +1,769 @@
-I2AhY2ZnKHRlc3QpXQoKdXNlIGNyYXRlOjp0ZXN0X3V0aWxzOjp7YWR2YW5jZV9sZWRnZXJfYnksIGNyZWF0ZV90ZXN0X2NsaWVudCwgc2V0dXBfZW52fTsKdXNlIGNyYXRlOjp0eXBlczp7Q291cG9uLCBFcnJvcn07CnVzZSBjcmF0ZTo6U3Vic2NyaXB0aW9uVmF1bHRDbGllbnQ7CnVzZSBzb3JvYmFuX3Nkazp7CiAgICB0ZXN0dXRpbHM6OkFkZHJlc3MgYXMgXywgTGVkZ2VyLAogICAgQWRkcmVzcywgRW52LCBTeW1ib2wsIFZlYywKfTsKCi8vIEhlbHBlciB0byBzZXR1cCBlbnYgYW5kIHJldHVybiBjbGllbnQsIGFkbWluLCBhbmQgdG9rZW4uCmZuIHNldHVwKCkgLT4gKEVudiwgU3Vic2NyaXB0aW9uVmF1bHRDbGllbnQ8J3N0YXRpYz4sIEFkZHJlc3MsIEFkZHJlc3MpIHsKICAgIGxldCBlbnYgPSBzZXR1cF9lbnYoKTsKICAgIGxldCBhZG1pbiA9IEFkZHJlc3M6OmdlbmVyYXRlKCZlbnYpOwogICAgbGV0IHRva2VuID0gQWRkcmVzczo6Z2VuZXJhdGUoJmVudik7CiAgICBsZXQgY2xpZW50ID0gY3JlYXRlX3Rlc3RfY2xpZW50KCZlbnYsICZhZG1pbiwgJnRva2VuKTsKICAgIChlbnYsIGNsaWVudCwgYWRtaW4sIHRva2VuKQp9CgojW3Rlc3RdCmZuIHRlc3RfY3JlYXRlX2NvdXBvbl92YWxpZCgpIHsKICAgIGxldCAoZW52LCBjbGllbnQsIF9hZG1pbiwgdG9rZW4pID0gc2V0dXAoKTsKICAgIGxldCBtZXJjaGFudCA9IEFkZHJlc3M6OmdlbmVyYXRlKCZlbnYpOwogICAgbGV0IGNvZGUgPSBTeW1ib2w6Om5ldygmZW52LCAiU1VNTUVSMjAiKTsKCiAgICBjbGllbnQubW9ja19hbGxfYXV0aHMoKS5jcmVhdGVfY291cG9uKAogICAgICAgICZtZXJjaGFudCwgJmNvZGUsICZ0b2tlbiwgJjIwMDAsIC8vIDIwJQogICAgICAgICY1MDAsICAvLyBmaXhlZCA1MDAKICAgICAgICAmMTAwLCAgLy8gbWF4IDEwMCByZWRlbXB0aW9ucwogICAgICAgICYwLCAgICAvLyBubyBleHBpcnkKICAgICk7CgogICAgbGV0IGNvdXBvbiA9IGNsaWVudC5nZXRfY291cG9uKCZjb2RlKS51bndyYXAoKTsKICAgIGFzc2VydF9lcSEoY291cG9uLm1lcmNoYW50LCBtZXJjaGFudCk7CiAgICBhc3NlcnRfZXEhKGNvdXBvbi5jb2RlLCBjb2RlKTsKICAgIGFzc2VydF9lcSEoY291cG9uLnRva2VuLCB0b2tlbik7CiAgICBhc3NlcnRfZXEhKGNvdXBvbi5wZXJjZW50X29mZl9icHMsIDIwMDApOwogICAgYXNzZXJ0X2VxIShjb3Vwb24uZml4ZWRfb2ZmLCA1MDApOwogICAgYXNzZXJ0X2VxIShjb3Vwb24ubWF4X3JlZGVtcHRpb25zLCAxMDApOwogICAgYXNzZXJ0X2VxIShjb3Vwb24uZXhwaXJlc19hdCwgMCk7CiAgICBhc3NlcnRfZXEhKGNvdXBvbi5yZXZva2VkLCBmYWxzZSk7Cn0KCiNbdGVzdF0KZm4gdGVzdF9jcmVhdGVfY291cG9uX2R1cGxpY2F0ZV9yZWplY3RlZCgpIHsKICAgIGxldCAoZW52LCBjbGllbnQsIF9hZG1pbiwgdG9rZW4pID0gc2V0dXAoKTsKICAgIGxldCBtZXJjaGFudCA9IEFkZHJlc3M6OmdlbmVyYXRlKCZlbnYpOwogICAgbGV0IGNvZGUgPSBTeW1ib2w6Om5ldygmZW52LCAiRFVQIik7CgogICAgY2xpZW50CiAgICAgICAgLm1vY2tfYWxsX2F1dGhzKCkKICAgICAgICAuY3JlYXRlX2NvdXBvbigmbWVyY2hhbnQsICZjb2RlLCAmdG9rZW4sICYwLCAmMCwgJjAsICYwKTsKCiAgICBsZXQgcmVzID0gY2xpZW50LnRyeV9jcmVhdGVfY291cG9uKCZtZXJjaGFudCwgJmNvZGUsICZ0b2tlbiwgJjAsICYwLCAmMCwgJjApOwogICAgYXNzZXJ0X2VxISgKICAgICAgICByZXMuZXJyKCkudW53cmFwKCkudW53cmFwKCkudG9fY29kZSgpLAogICAgICAgIEVycm9yOjpDb3Vwb25BbHJlYWR5RXhpc3RzLnRvX2NvZGUoKQogICAgKTsKfQoKI1t0ZXN0XQpmbiB0ZXN0X2NyZWF0ZV9jb3Vwb25fZHVwbGljYXRlX3ByZXNlcnZlc19vcmlnaW5hbF9zdGF0ZSgpIHsKICAgIGxldCAoZW52LCBjbGllbnQsIF9hZG1pbiwgdG9rZW4pID0gc2V0dXAoKTsKICAgIGxldCBtZXJjaGFudCA9IEFkZHJlc3M6OmdlbmVyYXRlKCZlbnYpOwogICAgbGV0IGNvZGUgPSBTeW1ib2w6Om5ldygmZW52LCAiUFJFU0VSVkUiKTsKCiAgICBjbGllbnQubW9ja19hbGxfYXV0aHMoKS5jcmVhdGVfY291cG9uKAogICAgICAgICZtZXJjaGFudCwgJmNvZGUsICZ0b2tlbiwgJjE1MDAsICYyNTAsICY1LCAmMCwKICAgICk7CiAgICBsZXQgYmVmb3JlID0gY2xpZW50LmdldF9jb3Vwb24oJmNvZGUpLnVud3JhcCgpOwoKICAgIC8vIEF0dGVtcHQgdG8gb3ZlcndyaXRlIHdpdGggZGlmZmVyZW50IHZhbHVlcy4KICAgIGxldCByZXMgPSBjbGllbnQudHJ5X2NyZWF0ZV9jb3Vwb24oCiAgICAgICAgJm1lcmNoYW50LAogICAgICAgICZjb2RlLAogICAgICAgICZ0b2tlbiwKICAgICAgICAmOTk5OSwKICAgICAgICAmOTk5OSwKICAgICAgICAmOTk5OSwKICAgICAgICAmOTk5OTk5LAogICAgKTsKICAgIGFzc2VydF9lcSEoCiAgICAgICAgcmVzLmVycigpLnVud3JhcCgpLnVud3JhcCgpLnRvX2NvZGUoKSwKICAgICAgICBFcnJvcjo6Q291cG9uQWxyZWFkeUV4aXN0cy50b19jb2RlKCkKICAgICk7CgogICAgbGV0IGFmdGVyID0gY2xpZW50LmdldF9jb3Vwb24oJmNvZGUpLnVud3JhcCgpOwogICAgYXNzZXJ0X2VxIShhZnRlci5tZXJjaGFudCwgYmVmb3JlLm1lcmNoYW50KTsKICAgIGFzc2VydF9lcSEoYWZ0ZXIudG9rZW4sIGJlZm9yZS50b2tlbik7CiAgICBhc3NlcnRfZXEhKGFmdGVyLnBlcmNlbnRfb2ZmX2JwcywgYmVmb3JlLnBlcmNlbnRfb2ZmX2Jwcyk7CiAgICBhc3NlcnRfZXEhKGFmdGVyLmZpeGVkX29mZiwgYmVmb3JlLmZpeGVkX29mZik7CiAgICBhc3NlcnRfZXEhKGFmdGVyLm1heF9yZWRlbXB0aW9ucywgYmVmb3JlLm1heF9yZWRlbXB0aW9ucyk7CiAgICBhc3NlcnRfZXEhKGFmdGVyLmV4cGlyZXNfYXQsIGJlZm9yZS5leHBpcmVzX2F0KTsKICAgIGFzc2VydF9lcSEoYWZ0ZXIucmV2b2tlZCwgYmVmb3JlLnJldm9rZWQpOwp9CgojW3Rlc3RdCmZuIHRlc3RfY3JlYXRlX2NvdXBvbl9ib3VuZGFyeV92YWx1ZXMoKSB7CiAgICBsZXQgKGVudiwgY2xpZW50LCBfYWRtaW4sIHRva2VuKSA9IHNldHVwKCk7CiAgICBsZXQgbWVyY2hhbnQgPSBBZGRyZXNzOjpnZW5lcmF0ZSgmZW52KTsKCiAgICAvLyBNYXhpbXVtIHBlcmNlbnRhZ2UgKDEwMCUpLCB6ZXJvIGZpeGVkIGRpc2NvdW50LCB6ZXJvIG1heCByZWRlbXB0aW9ucyAoZGVub3RlcyB1bmxpbWl0ZWQpLgogICAgbGV0IGNvZGVfbWF4ID0gU3ltYm9sOjpuZXcoJmVudiwgIk1BWF9CUFMiKTsKICAgIGNsaWVudC5tb2NrX2FsbF9hdXRocygpLmNyZWF0ZV9jb3Vwb24oCiAgICAgICAgJm1lcmNoYW50LAogICAgICAgICZjb2RlX21heCwKICAgICAgICAmdG9rZW4sCiAgICAgICAgJjEwMDAwLAogICAgICAgICYwLAogICAgICAgICYwLAogICAgICAgICZ1NjQ6Ok1BWCwKICAgICk7CiAgICBsZXQgY291cG9uID0gY2xpZW50LmdldF9jb3Vwb24oJmNvZGVfbWF4KS51bndyYXAoKTsKICAgIGFzc2VydF9lcSEoY291cG9uLnBlcmNlbnRfb2ZmX2JwcywgMTAwMDApOwogICAgYXNzZXJ0X2VxIShjb3Vwb24uZml4ZWRfb2ZmLCAwKTsKICAgIGFzc2VydF9lcSEoY291cG9uLm1heF9yZWRlbXB0aW9ucywgMCk7CiAgICBhc3NlcnRfZXEhKGNvdXBvbi5leHBpcmVzX2F0LCB1NjQ6Ok1BWCk7CiAgICBhc3NlcnRfZXEhKGNvdXBvbi5yZXZva2VkLCBmYWxzZSk7CgogICAgLy8gTWF4aW11bSBmaXhlZCBkaXNjb3VudCBhbmQgbWF4IHJlZGVtcHRpb25zLgogICAgbGV0IGNvZGVfZml4ZWQgPSBTeW1ib2w6Om5ldygmZW52LCAiTUFYX0ZJWEVEIik7CiAgICBjbGllbnQubW9ja19hbGxfYXV0aHMoKS5jcmVhdGVfY291cG9uKAogICAgICAgICZtZXJjaGFudCwKICAgICAgICAmY29kZV9maXhlZCwKICAgICAgICAmdG9rZW4sCiAgICAgICAgJjAsCiAgICAgICAgJmkxMjg6Ok1BWCwKICAgICAgICAmdTMyOjpNQVgsCiAgICAgICAgJjAsCiAgICApOwogICAgbGV0IGNvdXBvbiA9IGNsaWVudC5nZXRfY291cG9uKCZjb2RlX2ZpeGVkKS51bndyYXAoKTsKICAgIGFzc2VydF9lcSEoY291cG9uLnBlcmNlbnRfb2ZmX2JwcywgMCk7CiAgICBhc3NlcnRfZXEhKGNvdXBvbi5maXhlZF9vZmYsIGkxMjg6Ok1BWCk7CiAgICBhc3NlcnRfZXEhKGNvdXBvbi5tYXhfcmVkZW1wdGlvbnMsIHUzMjo6TUFYKTsKICAgIGFzc2VydF9lcSEoY291cG9uLmV4cGlyZXNfYXQsIDApOwp9CgojW3Rlc3RdCmZuIHRlc3RfY3JlYXRlX2NvdXBvbl9yZXF1aXJlc19tZXJjaGFudF9hdXRoKCkgewogICAgbGV0IChlbnYsIGNsaWVudCwgX2FkbWluLCB0b2tlbikgPSBzZXR1cCgpOwogICAgbGV0IG1lcmNoYW50ID0gQWRkcmVzczo6Z2VuZXJhdGUoJmVudik7CiAgICBsZXQgY29kZSA9IFN5bWJvbDo6bmV3KCZlbnYsICJOT19BVVRIUyIpOwoKICAgIC8vIFdpdGhvdXQgbW9ja2VkIGF1dGhzLCB0aGUgbWVyY2hhbnQgYXV0aCByZXF1aXJlbWVudCBtdXN0IGZhaWwuCiAgICBsZXQgcmVzID0gY2xpZW50LnRyeV9jcmVhdGVfY291cG9uKCZtZXJjaGFudCwgJmNvZGUsICZ0b2tlbiwgJjAsICYwLCAmMCwgJjApOwogICAgYXNzZXJ0IShyZXMuaXNfZXJyKCkpOwoKICAgIC8vIFN0YXRlIG11c3QgcmVtYWluIHVuY2hhbmdlZDogY291cG9uIG11c3Qgbm90IGV4aXN0LgogICAgYXNzZXJ0IShjbGllbnQuZ2V0X2NvdXBvbigmY29kZSkuaXNfbm9uZSgpKTsKfQoKI1t0ZXN0XQpmbiB0ZXN0X3Jldm9rZV9jb3Vwb24oKSB7CiAgICBsZXQgKGVudiwgY2xpZW50LCBfYWRtaW4sIHRva2VuKSA9IHNldHVwKCk7CiAgICBsZXQgbWVyY2hhbnQgPSBBZGRyZXNzOjpnZW5lcmF0ZSgmZW52KTsKICAgIGxldCBjb2RlID0gU3ltYm9sOjpuZXcoJmVudiwgIlJFVk9LRV9NRSIpOwoKICAgIGNsaWVudAogICAgICAgIC5tb2NrX2FsbF9hdXRocygpCiAgICAgICAgLmNyZWF0ZV9jb3Vwb24oJm1lcmNoYW50LCAmY29kZSwgJnRva2VuLCAmMCwgJjAsICYwLCAmMCk7CiAgICBjbGllbnQubW9ja19hbGxfYXV0aHMoKS5yZXZva2VfY291cG9uKCZtZXJjaGFudCwgJmNvZGUpOwoKICAgIGxldCBjb3Vwb24gPSBjbGllbnQuZ2V0X2NvdXBvbigmY29kZSkudW53cmFwKCk7CiAgICBhc3NlcnRfZXEhKGNvdXBvbi5yZXZva2VkLCB0cnVlKTsKfQoKI1t0ZXN0XQpmbiB0ZXN0X3Jldm9rZV9jb3Vwb25fdW5hdXRob3JpemVkKCkgewogICAgbGV0IChlbnYsIGNsaWVudCwgX2FkbWluLCB0b2tlbikgPSBzZXR1cCgpOwogICAgbGV0IG1lcmNoYW50ID0gQWRkcmVzczo6Z2VuZXJhdGUoJmVudik7CiAgICBsZXQgd3JvbmdfbWVyY2hhbnQgPSBBZGRyZXNzOjpnZW5lcmF0ZSgmZW52KTsKICAgIGxldCBjb2RlID0gU3ltYm9sOjpuZXcoJmVudiwgIlJFVk9LRV9NRSIpOwoKICAgIGNsaWVudAogICAgICAgIC5tb2NrX2FsbF9hdXRocygpCiAgICAgICAgLmNyZWF0ZV9jb3Vwb24oJm1lcmNoYW50LCAmY29kZSwgJnRva2VuLCAmMCwgJjAsICYwLCAmMCk7CgogICAgbGV0IHJlcyA9IGNsaWVudC50cnlfcmV2b2tlX2NvdXBvbigmd3JvbmdfbWVyY2hhbnQsICZjb2RlKTsKICAgIGFzc2VydF9lcSEoCiAgICAgICAgcmVzLmVycigpLnVud3JhcCgpLnVud3JhcCgpLnRvX2NvZGUoKSwKICAgICAgICBFcnJvcjo6VW5hdXRob3JpemVkLnRvX2NvZGUoKQogICAgKTsKCiAgICAvLyBSZXZvY2F0aW9uIG11c3Qgbm90IGhhdmUgb2NjdXJyZWQuCiAgICBsZXQgY291cG9uID0gY2xpZW50LmdldF9jb3Vwb24oJmNvZGUpLnVud3JhcCgpOwogICAgYXNzZXJ0X2VxIShjb3Vwb24ucmV2b2tlZCwgZmFsc2UpOwp9CgojW3Rlc3RdCmZuIHRlc3RfYXBwbHlfY291cG9uX3N1YnNjcmliZXJfYXV0aCgpIHsKICAgIGxldCAoZW52LCBjbGllbnQsIF9hZG1pbiwgdG9rZW4pID0gc2V0dXAoKTsKICAgIGxldCBtZXJjaGFudCA9IEFkZHJlc3M6OmdlbmVyYXRlKCZlbnYpOwogICAgbGV0IHN1YnNjcmliZXIgPSBBZGRyZXNzOjpnZW5lcmF0ZSgmZW52KTsKICAgIGxldCB3cm9uZ19zdWJzY3JpYmVyID0gQWRkcmVzczo6Z2VuZXJhdGUoJmVudik7CiAgICBsZXQgY29kZSA9IFN5bWJvbDo6bmV3KCZlbnYsICJURVNUX0NPREUiKTsKCiAgICBjbGllbnQKICAgICAgICAubW9ja19hbGxfYXV0aHMoKQogICAgICAgIC5jcmVhdGVfY291cG9uKCZtZXJjaGFudCwgJmNvZGUsICZ0b2tlbiwgJjAsICYwLCAmMCwgJjApOwogICAgbGV0IHN1Yl9pZCA9IGNsaWVudAogICAgICAgIC5tb2NrX2FsbF9hdXRocygpCiAgICAgICAgLmNyZWF0ZV9zdWJzY3JpcHRpb24oJnN1YnNjcmliZXIsICZtZXJjaGFudCwgJjEwMDAsICY4NjQwMCwgJmZhbHNlLCAmTm9uZTo6PGkxMjg+LCAmTm9uZTo6PHU2ND4sICZOb25lOjo8dTMyPiwgJk5vbmU6Ojxz
-b3JvYmFuX3NkazpTeW1ib2w+KTsKCiAgICBsZXQgcmVzID0gY2xpZW50LnRyeV9hcHBseV9jb3Vwb24oJndyb25nX3N1YnNjcmliZXIsICZzdWJfaWQsICZjb2RlKTsKICAgIGFzc2VydF9lcSEoCiAgICAgICAgcmVzLmVycigpLnVud3JhcCgpLnVud3JhcCgpLnRvX2NvZGUoKSwKICAgICAgICBFcnJvcjo6VW5hdXRob3JpemVkLnRvX2NvZGUoKQogICAgKTsKfQoKI1t0ZXN0XQpmbiB0ZXN0X2FwcGx5X2NvdXBvbl9leHBpcmVkKCkgewogICAgbGV0IChlbnYsIGNsaWVudCwgX2FkbWluLCB0b2tlbikgPSBzZXR1cCgpOwogICAgbGV0IG1lcmNoYW50ID0gQWRkcmVzczo6Z2VuZXJhdGUoJmVudik7CiAgICBsZXQgc3Vic2NyaWJlciA9IEFkZHJlc3M6OmdlbmVyYXRlKCZlbnYpOwogICAgbGV0IGNvZGUgPSBTeW1ib2w6Om5ldygmZW52LCAiRVhQSVJFRCIpOwoKICAgIGxldCBub3cgPSBlbnYubGVkZ2VyKCkudGltZXN0YW1wKCk7CiAgICAvLyBFeHBpcmVzIGluIDEwMCBzZWNvbmRzCiAgICBjbGllbnQKICAgICAgICAubW9ja19hbGxfYXV0aHMoKQogICAgICAgIC5jcmVhdGVfY291cG9uKCZtZXJjaGFudCwgJmNvZGUsICZ0b2tlbiwgJjAsICYwLCAmMCwgJihub3cgKyAxMDApKTsKCiAgICBsZXQgc3ViX2lkID0gY2xpZW50CiAgICAgICAgLm1vY2tfYWxsX2F1dGhzKCkKICAgICAgICAuY3JlYXRlX3N1YnNjcmlwdGlvbigmc3Vic2NyaWJlciwgJm1lcmNoYW50LCAmMTAwMCwgJjg2NDAwLCAmZmFsc2UsICZOb25lOjo8aTEyOD4sICZOb25lOjo8dTY0PiwgJk5vbmU6Ojx1MzI+LCAmTm9uZTo6PHNvcm9iYW5fc2RrOjpTeW1ib2w+KTsKCiAgICAvLyBBZHZhbmNlIHRpbWUgcGFzdCBleHBpcnkKICAgIGVudi5sZWRnZXIoKS5zZXRfdGltZXN0YW1wKG5vdyArIDIwMCk7CgogICAgbGV0IHJlcyA9IGNsaWVudC50cnlfYXBwbHlfY291cG9uKCZzdWJzY3JpYmVyLCAmc3ViX2lkLCAmY29kZSk7CiAgICBhc3NlcnRfZXEhKAogICAgICAgIHJlcy5lcnIoKS51bndyYXAoKS51bndyYXAoKS50b19jb2RlKCksCiAgICAgICAgRXJyb3I6OkNvdXBvbkV4cGlyZWQudG9fY29kZSgpCiAgICApOwp9CgojW3Rlc3RdCmZuIHRlc3RfYXBwbHlfY291cG9uX3Jldm9rZWQoKSB7CiAgICBsZXQgKGVudiwgY2xpZW50LCBfYWRtaW4sIHRva2VuKSA9IHNldHVwKCk7CiAgICBsZXQgbWVyY2hhbnQgPSBBZGRyZXNzOjpnZW5lcmF0ZSgmZW52KTsKICAgIGxldCBzdWJzY3JpYmVyID0gQWRkcmVzczo6Z2VuZXJhdGUoJmVudik7CiAgICBsZXQgY29kZSA9IFN5bWJvbDo6bmV3KCZlbnYsICJSRVZPS0VEIik7CgogICAgY2xpZW50CiAgICAgICAgLm1vY2tfYWxsX2F1dGhzKCkKICAgICAgICAuY3JlYXRlX2NvdXBvbigmbWVyY2hhbnQsICZjb2RlLCAmdG9rZW4sICYwLCAmMCwgJjAsICYwKTsKICAgIGNsaWVudC5tb2NrX2FsbF9hdXRocygpLnJldm9rZV9jb3Vwb24oJm1lcmNoYW50LCAmY29kZSk7CgogICAgbGV0IHN1Yl9pZCA9IGNsaWVudAogICAgICAgIC5tb2NrX2FsbF9hdXRocygpCiAgICAgICAgLmNyZWF0ZV9zdWJzY3JpcHRpb24oJnN1YnNjcmliZXIsICZtZXJjaGFudCwgJjEwMDAsICY4NjQwMCwgJmZhbHNlLCAmTm9uZTo6PGkxMjg+LCAmTm9uZTo6PHU2ND4sICZOb25lOjo8dTMyPiwgJk5vbmU6Ojxz
-b3JvYmFuX3NkazpTeW1ib2w+KTsKCiAgICBsZXQgcmVzID0gY2xpZW50LnRyeV9hcHBseV9jb3Vwb24oJnN1YnNjcmliZXIsICZzdWJfaWQsICZjb2RlKTsKICAgIGFzc2VydF9lcSEoCiAgICAgICAgcmVzLmVycigpLnVud3JhcCgpLnVud3JhcCgpLnRvX2NvZGUoKSwKICAgICAgICBFcnJvcjo6Q291cG9uUmV2b2tlZC50b19jb2RlKCkKICAgICk7Cn0KCiNbdGVzdF0KZm4gdGVzdF9hcHBseV9jb3Vwb25fbGltaXRfcmVhY2hlZCgpIHsKICAgIGxldCAoZW52LCBjbGllbnQsIF9hZG1pbiwgdG9rZW4pID0gc2V0dXAoKTsKICAgIGxldCBtZXJjaGFudCA9IEFkZHJlc3M6OmdlbmVyYXRlKCZlbnYpOwogICAgbGV0IHN1YnNjcmliZXIxID0gQWRkcmVzczo6Z2VuZXJhdGUoJmVudik7CiAgICBsZXQgc3Vic2NyaWJlcjIgPSBBZGRyZXNzOjpnZW5lcmF0ZSgmZW52KTsKICAgIGxldCBjb2RlID0gU3ltYm9sOjpuZXcoJmVudiwgIkxJTUlUMSIpOwoKICAgIC8vIE1heCAxIHJlZGVtcHRpb24KICAgIGNsaWVudAogICAgICAgIC5tb2NrX2FsbF9hdXRocygpCiAgICAgICAgLmNyZWF0ZV9jb3Vwb24oJm1lcmNoYW50LCAmY29kZSwgJnRva2VuLCAmMCwgJjAsICYxLCAmMCk7CgogICAgbGV0IHN1Yl9pZDEgPSBjbGllbnQKICAgICAgICAubW9ja19hbGxfYXV0aHMoKQogICAgICAgIC5jcmVhdGVfc3Vic2NyaXB0aW9uKCZzdWJzY3JpYmVyMSwgJm1lcmNoYW50LCAmMTAwMCwgJjg2NDAwLCAmZmFsc2UsICZOb25lOjo8aTEyOD4sICZOb25lOjo8dTY0PiwgJk5vbmU6Ojx1MzI+LCAmTm9uZTo6PHNvcm9iYW5fc2RrOjpTeW1ib2w+KTsKICAgIGxldCBzdWJfaWQyID0gY2xpZW50CiAgICAgICAgLm1vY2tfYWxsX2F1dGhzKCkKICAgICAgICAuY3JlYXRlX3N1YnNjcmlwdGlvbigmc3Vic2NyaWJlcjIsICZtZXJjaGFudCwgJjEwMDAsICY4NjQwMCwgJmZhbHNlLCAmTm9uZTo6PGkxMjg+LCAmTm9uZTo6PHU2ND4sICZOb25lOjo8dTMyPiwgJk5vbmU6Ojxz
-b3JvYmFuX3NkazpTeW1ib2w+KTsKCiAgICAvLyBGaXJzdCBvbmUgd29ya3MKICAgIGNsaWVudAogICAgICAgIC5tb2NrX2FsbF9hdXRocygpCiAgICAgICAgLmFwcGx5X2NvdXBvbigmc3Vic2NyaWJlcjEsICZzdWJfaWQxLCAmY29kZSk7CgogICAgLy8gU2Vjb25kIG9uZSBmYWlscwogICAgbGV0IHJlcyA9IGNsaWVudC50cnlfYXBwbHlfY291cG9uKCZzdWJzY3JpYmVyMiwgJnN1Yl9pZDIsICZjb2RlKTsKICAgIGFzc2VydF9lcSEoCiAgICAgICAgcmVzLmVycigpLnVud3JhcCgpLnVud3JhcCgpLnRvX2NvZGUoKSwKICAgICAgICBFcnJvcjo6Q291cG9uUmVkZW1wdGlvbkxpbWl0UmVhY2hlZC50b19jb2RlKCkKICAgICk7Cn0KCiNbdGVzdF0KZm4gdGVzdF9hcHBseV9jb3Vwb25fYWxyZWFkeV9hcHBsaWVkKCkgewogICAgbGV0IChlbnYsIGNsaWVudCwgX2FkbWluLCB0b2tlbikgPSBzZXR1cCgpOwogICAgbGV0IG1lcmNoYW50ID0gQWRkcmVzczo6Z2VuZXJhdGUoJmVudik7CiAgICBsZXQgc3Vic2NyaWJlciA9IEFkZHJlc3M6OmdlbmVyYXRlKCZlbnYpOwogICAgbGV0IGNvZGUxID0gU3ltYm9sOjpuZXcoJmVudiwgIkNPREUxIik7CiAgICBsZXQgY29kZTIgPSBTeW1ib2w6Om5ldygmZW52LCAiQ09ERTIiKTsKCiAgICBjbGllbnQKICAgICAgICAubW9ja19hbGxfYXV0aHMoKQogICAgICAgIC5jcmVhdGVfY291cG9uKCZtZXJjaGFudCwgJmNvZGUxLCAmdG9rZW4sICYwLCAmMCwgJjAsICYwKTsKICAgIGNsaWVudAogICAgICAgIC5tb2NrX2FsbF9hdXRocygpCiAgICAgICAgLmNyZWF0ZV9jb3Vwb24oJm1lcmNoYW50LCAmY29kZTIsICZ0b2tlbiwgJjAsICYwLCAmMCwgJjApOwogICAgbGV0IHN1Yl9pZCA9IGNsaWVudAogICAgICAgIC5tb2NrX2FsbF9hdXRocygpCiAgICAgICAgLmNyZWF0ZV9zdWJzY3JpcHRpb24oJnN1YnNjcmliZXIsICZtZXJjaGFudCwgJjEwMDAsICY4NjQwMCwgJmZhbHNlLCAmTm9uZTo6PGkxMjg+LCAmTm9uZTo6PHU2ND4sICZOb25lOjo8dTMyPiwgJk5vbmU6Ojxz
-b3JvYmFuX3NkazpTeW1ib2w+KTsKCiAgICBjbGllbnQKICAgICAgICAubW9ja19hbGxfYXV0aHMoKQogICAgICAgIC5hcHBseV9jb3Vwb24oJnN1YnNjcmliZXIsICZzdWJfaWQsICZjb2RlMSk7CgogICAgbGV0IHJlcyA9IGNsaWVudC50cnlfYXBwbHlfY291cG9uKCZzdWJzY3JpYmVyLCAmc3ViX2lkLCAmY29kZTIpOwogICAgYXNzZXJ0X2VxISgKICAgICAgICByZXMuZXJyKCkudW53cmFwKCkudW53cmFwKCkudG9fY29kZSgpLAogICAgICAgIEVycm9yOjpDb3Vwb25BbHJlYWR5QXBwbGllZC50b19jb2RlKCkKICAgICk7Cn0KCiNbdGVzdF0KZm4gdGVzdF9hcHBseV9zYW1lX2NvdXBvbl90d2ljZV9mYWlscygpIHsKICAgIGxldCAoZW52LCBjbGllbnQsIF9hZG1pbiwgdG9rZW4pID0gc2V0dXAoKTsKICAgIGxldCBtZXJjaGFudCA9IEFkZHJlc3M6OmdlbmVyYXRlKCZlbnYpOwogICAgbGV0IHN1YnNjcmliZXIgPSBBZGRyZXNzOjpnZW5lcmF0ZSgmZW52KTsKICAgIGxldCBjb2RlID0gU3ltYm9sOjpuZXcoJmVudiwgIkRPVUJMRV9BUFBMWSIpOwoKICAgIGNsaWVudAogICAgICAgIC5tb2NrX2FsbF9hdXRocygpCiAgICAgICAgLmNyZWF0ZV9jb3Vwb24oJm1lcmNoYW50LCAmY29kZSwgJnRva2VuLCAmMCwgJjAsICYwLCAmMCk7CgogICAgbGV0IHN1Yl9pZCA9IGNsaWVudAogICAgICAgIC5tb2NrX2FsbF9hdXRocygpCiAgICAgICAgLmNyZWF0ZV9zdWJzY3JpcHRpb24oCiAgICAgICAgICAgICZzdWJzY3JpYmVyLAogICAgICAgICAgICAmbWVyY2hhbnQsCiAgICAgICAgICAgICYxMDAwLAogICAgICAgICAgICAmODY0MDAsCiAgICAgICAgICAgICZmYWxzZSwKICAgICAgICAgICAgJk5vbmU6OjxpMTI4PiwKICAgICAgICAgICAgJk5vbmU6Ojx1NjQ+LAogICAgICAgICAgICAmTm9uZTo6PHUzMj4sCiAgICAgICAgICAgICZOb25lOjo8c29yb2Jhbl9zZGs6OlN5bWJvbD4sCiAgICAgICAgKTsKCiAgICAvLyBGaXJzdCBhcHBsaWNhdGlvbiBzdWNjZWVkcy4KICAgIGNsaWVudAogICAgICAgIC5tb2NrX2FsbF9hdXRocygpCiAgICAgICAgLmFwcGx5X2NvdXBvbigmc3Vic2NyaWJlciwgJnN1Yl9pZCwgJmNvZGUpOwoKICAgIC8vIFNlY29uZCBhcHBsaWNhdGlvbiBvZiB0aGUgc2FtZSBjb3Vwb24gbXVzdCBmYWlsLgogICAgbGV0IHJlc3VsdCA9IGNsaWVudC50cnlfYXBwbHlfY291cG9uKCZzdWJzY3JpYmVyLCAmc3ViX2lkLCAmY29kZSk7CgogICAgYXNzZXJ0X2VxISgKICAgICAgICByZXN1bHQuZXJyKCkudW53cmFwKCkudW53cmFwKCkudG9fY29kZSgpLAogICAgICAgIEVycm9yOjpDb3Vwb25BbHJlYWR5QXBwbGllZC50b19jb2RlKCkKICAgICk7CgogICAgLy8gQ291cG9uIHJlbWFpbnMgYm91bmQgdG8gdGhlIHN1YnNjcmlwdGlvbi4KICAgIGxldCBjb3Vwb24gPSBjbGllbnQuZ2V0X2NvdXBvbigmY29kZSkudW53cmFwKCk7CiAgICBhc3NlcnRfZXEhKGNvdXBvbi5jb2RlLCBjb2RlKTsKfQoKI1t0ZXN0XQpmbiB0ZXN0X2FwcGx5X2NvdXBvbl90b2tlbl9taXNtYXRjaCgpIHsKICAgIGxldCAoZW52LCBjbGllbnQsIF9hZG1pbiwgdG9rZW4pID0gc2V0dXAoKTsKICAgIGxldCBtZXJjaGFudCA9IEFkZHJlc3M6OmdlbmVyYXRlKCZlbnYpOwogICAgbGV0IHN1YnNjcmliZXIgPSBBZGRyZXNzOjpnZW5lcmF0ZSgmZW52KTsKICAgIGxldCB3cm9uZ190b2tlbiA9IEFkZHJlc3M6OmdlbmVyYXRlKCZlbnYpOwogICAgbGV0IGNvZGUgPSBTeW1ib2w6Om5ldygmZW52LCAiTUlTTUFUQ0giKTsKCiAgICAvLyBDb3Vwb24gaXMgZm9yIHdyb25nX3Rva2VuCiAgICBjbGllbnQKICAgICAgICAubW9ja19hbGxfYXV0aHMoKQogICAgICAgIC5jcmVhdGVfY291cG9uKCZtZXJjaGFudCwgJmNvZGUsICZ3cm9uZ190b2tlbiwgJjAsICYwLCAmMCwgJjApOwogICAgLy8gU3Vic2NyaXB0aW9uIGlzIGZvciB0b2tlbgogICAgbGV0IHN1Yl9pZCA9IGNsaWVudAogICAgICAgIC5tb2NrX2FsbF9hdXRocygpCiAgICAgICAgLmNyZWF0ZV9zdWJzY3JpcHRpb24oJnN1YnNjcmliZXIsICZtZXJjaGFudCwgJjEwMDAsICY4NjQwMCwgJmZhbHNlLCAmTm9uZTo6PGkxMjg+LCAmTm9uZTo6PHU2ND4sICZOb25lOjo8dTMyPiwgJk5vbmU6Ojxz
-b3JvYmFuX3NkazpTeW1ib2w+KTsKCiAgICBsZXQgcmVzID0gY2xpZW50LnRyeV9hcHBseV9jb3Vwb24oJnN1YnNjcmliZXIsICZzdWJfaWQsICZjb2RlKTsKICAgIGFzc2VydF9lcSEoCiAgICAgICAgcmVzLmVycigpLnVud3JhcCgpLnVud3JhcCgpLnRvX2NvZGUoKSwKICAgICAgICBFcnJvcjo6Q291cG9uVG9rZW5NaXNtYXRjaC50b19jb2RlKCkKICAgICk7Cn0KCiNbdGVzdF0KZm4gdGVzdF9kaXNjb3VudF9tYXRoKCkgewogICAgbGV0IGVudiA9IEVudjo6ZGVmYXVsdCgpOwogICAgbGV0IGR1bW15X2FkZHJlc3MgPSBBZGRyZXNzOjpnZW5lcmF0ZSgmZW52KTsKICAgIGxldCBtdXQgY291cG9uID0gQ291cG9uIHsKICAgICAgICBjb2RlOiBTeW1ib2w6Om5ldygmZW52LCAiRFVNTVkiKSwKICAgICAgICBtZXJjaGFudDogZHVtbXlfYWRkcmVzcy5jbG9uZSgpLAogICAgICAgIHRva2VuOiBkdW1teV9hZGRyZXNzLAogICAgICAgIHBlcmNlbnRfb2ZmX2JwczogMCwKICAgICAgICBmaXhlZF9vZmY6IDAsCiAgICAgICAgbWF4X3JlZGVtcHRpb25zOiAwLAogICAgICAgIGV4cGlyZXNfYXQ6IDAsCiAgICAgICAgcmV2b2tlZDogZmFsc2UsCiAgICB9OwoKICAgIC8vIDEwMCUgb2ZmIC0+IGRpc2NvdW50ID0gZ3Jvc3MKICAgIGNvdXBvbi5wZXJjZW50X29mZl9icHMgPSAxMDAwMDsKICAgIGNvdXBvbi5maXhlZF9vZmYgPSAwOwogICAgYXNzZXJ0X2VxIShjcmF0ZTo6Y291cG9uOjpjb21wdXRlX2Rpc2NvdW50KDEwMDAsICZjb3Vwb24pLCAxMDAwKTsKCiAgICAvLyAyMCUgb2ZmIC0+IGRpc2NvdW50ID0gMjAwCiAgICBjb3Vwb24ucGVyY2VudF9vZmZfYnBzID0gMjAwMDsKICAgIGNvdXBvbi5maXhlZF9vZmYgPSAwOwogICAgYXNzZXJ0X2VxIShjcmF0ZTo6Y291cG9uOjpjb21wdXRlX2Rpc2NvdW50KDEwMDAsICZjb3Vwb24pLCAyMDApOwoKICAgIC8vIEZpeGVkIG9ubHkgLT4gZGlzY291bnQgPSAzMDAKICAgIGNvdXBvbi5wZXJjZW50X29mZl9icHMgPSAwOwogICAgY291cG9uLmZpeGVkX29mZiA9IDMwMDsKICAgIGFzc2VydF9lcSEoY3JhdGU6OmNvdXBvbjo6Y29tcHV0ZV9kaXNjb3VudCgxMDAwLCAmY291cG9uKSwgMzAwKTsKCiAgICAvLyAyMCUgb2ZmIHRoZW4gMTAwIG9mZiAoMTAwMCAtPiA4MDAgLT4gNzAwIHBheWFibGUsIGRpc2NvdW50IDMwMCkKICAgIGNvdXBvbi5wZXJjZW50X29mZl9icHMgPSAyMDAwOwogICAgY291cG9uLmZpeGVkX29mZiA9IDEwMDsKICAgIGFzc2VydF9lcSEoY3JhdGU6OmNvdXBvbjo6Y29tcHV0ZV9kaXNjb3VudCgxMDAwLCAmY291cG9uKSwgMzAwKTsKCiAgICAvLyBDbGFtcCB0byB6ZXJvOiAyMCUgb2ZmIHRoZW4gOTAwIG9mZiAoMTAwMCAtPiA4MDAgLT4gMCBwYXlhYmxlLCBkaXNjb3VudCAxMDAwKQogICAgY291cG9uLnBlcmNlbnRfb2ZmX2JwcyA9IDIwMDA7CiAgICBjb3Vwb24uZml4ZWRfb2ZmID0gOTAwOwogICAgYXNzZXJ0X2VxIShjcmF0ZTo6Y291cG9uOjpjb21wdXRlX2Rpc2NvdW50KDEwMDAsICZjb3Vwb24pLCAxMDAwKTsKfQoKI1t0ZXN0XQpmbiB2YWxpZGF0ZV9jb3Vwb25fZm9yX2NoYXJnZV9jaGVja3NfZXhwaXJ5X2JvdW5kYXJpZXNfYW5kX25ldmVyX2V4cGlyaW5nX2NvdXBvbnMoKSB7CiAgICBsZXQgZW52ID0gRW52OjpkZWZhdWx0KCk7CiAgICBsZXQgdG9rZW4gPSBBZGRyZXNzOjpnZW5lcmF0ZSgmZW52KTsKICAgIGxldCBjb3Vwb24gPSBDb3Vwb24gewogICAgICAgIGNvZGU6IFN5bWJvbDo6bmV3KCZlbnYsICJWQUxJREFURV9CT1VOREFSWSIpLAogICAgICAgIG1lcmNoYW50OiBBZGRyZXNzOjpnZW5lcmF0ZSgmZW52KSwKICAgICAgICB0b2tlbjogdG9rZW4uY2xvbmUoKSwKICAgICAgICBwZXJjZW50X29mZl9icHM6IDIwMDAsCiAgICAgICAgZml4ZWRfb2ZmOiAwLAogICAgICAgIG1heF9yZWRlbXB0aW9uczogMSwKICAgICAgICBleHBpcmVzX2F0OiAxMDAsCiAgICAgICAgcmV2b2tlZDogZmFsc2UsCiAgICB9OwoKICAgIGFzc2VydF9lcSEoCiAgICAgICAgY3JhdGU6OmNvdXBvbjo6dmFsaWRhdGVfY291cG9uX2Zvcl9jaGFyZ2UoJmVudiwgOTksICZ0b2tlbiwgJmNvdXBvbiksCiAgICAgICAgT2soKCkpCiAgICApOwogICAgZm9yIG5vdyBpbiBbMTAwLCAxMDEsIHU2NDo6TUFYXSB7CiAgICAgICAgYXNzZXJ0X2VxISgKICAgICAgICAgICAgY3JhdGU6OmNvdXBvbjo6dmFsaWRhdGVfY291cG9uX2Zvcl9jaGFyZ2UoJmVudiwgbm93LCAmdG9rZW4sICZjb3Vwb24pCiAgICAgICAgICAgICAgICAudW53cmFwX2VycigpCiAgICAgICAgICAgICAgICAudG9fY29kZSgpLAogICAgICAgICAgICBFcnJvcjo6Q291cG9uRXhwaXJlZC50b19jb2RlKCksCiAgICAgICAgICAgICJjb3Vwb24gc2hvdWxkIGJlIGV4cGlyZWQgYXQgdGltZXN0YW1wIHtub3d9IgogICAgICAgICk7CiAgICB9CgogICAgbGV0IG5ldmVyX2V4cGlyZXMgPSBDb3Vwb24gewogICAgICAgIGV4cGlyZXNfYXQ6IDAsCiAgICAgICAgLi5jb3Vwb24uY2xvbmUoKQogICAgfTsKICAgIGFzc2VydF9lcSEoCiAgICAgICAgY3JhdGU6OmNvdXBvbjo6dmFsaWRhdGVfY291cG9uX2Zvcl9jaGFyZ2UoJmVudiwgdTY0OjpNQVgsICZ0b2tlbiwgJm5ldmVyX2V4cGlyZXMpLAogICAgICAgIE9rKCgpKQogICAgKTsKfQoKI1t0ZXN0XQpmbiB2YWxpZGF0ZV9jb3Vwb25fZm9yX2NoYXJnZV9yZWplY3RzX3Jldm9rZWRfYW5kX3Rva2VuX21pc21hdGNoX3dpdGhvdXRfc3RhdGVfY2hhbmdlcygpIHsKICAgIGxldCAoZW52LCBjbGllbnQsIF9hZG1pbiwgdG9rZW4pID0gc2V0dXAoKTsKICAgIGxldCBtZXJjaGFudCA9IEFkZHJlc3M6OmdlbmVyYXRlKCZlbnYpOwogICAgbGV0IGNvZGUgPSBTeW1ib2w6Om5ldygmZW52LCAiVkFMSURBVEVfRkFJTFVSRVMiKTsKICAgIGxldCB3cm9uZ190b2tlbiA9IEFkZHJlc3M6OmdlbmVyYXRlKCZlbnYpOwoKICAgIGNsaWVudAogICAgICAgIC5tb2NrX2FsbF9hdXRocygpCiAgICAgICAgLmNyZWF0ZV9jb3Vwb24oJm1lcmNoYW50LCAmY29kZSwgJnRva2VuLCAmMCwgJjAsICYwLCAmMCk7CiAgICBsZXQgYmVmb3JlID0gY2xpZW50LmdldF9jb3Vwb24oJmNvZGUpLnVud3JhcCgpOwoKICAgIC8vIFRva2VuIG1pc21hdGNoIGlzIHJlamVjdGVkIGFuZCBsZWF2ZXMgY291cG9uIHVuY2hhbmdlZC4KICAgIGFzc2VydF9lcSEoCiAgICAgICAgY3JhdGU6OmNvdXBvbjo6dmFsaWRhdGVfY291cG9uX2Zvcl9jaGFyZ2UoJmVudiwgMCwgJndyb25nX3Rva2VuLCAmYmVmb3JlKQogICAgICAgICAgICAudW53cmFwX2VycigpCiAgICAgICAgICAgIC50b19jb2RlKCksCiAgICAgICAgRXJyb3I6OkNvdXBvblRva2VuTWlzbWF0Y2gudG9fY29kZSgpCiAgICApOwoKICAgIC8vIFJldm9rZWQgY291cG9uIGlzIHJlamVjdGVkLgogICAgY2xpZW50Lm1vY2tfYWxsX2F1dGhzKCkucmV2b2tlX2NvdXBvbigmbWVyY2hhbnQsICZjb2RlKTsKICAgIGxldCByZXZva2VkID0gY2xpZW50LmdldF9jb3Vwb24oJmNvZGUpLnVud3JhcCgpOwogICAgYXNzZXJ0X2VxISgKICAgICAgICBjcmF0ZTo6Y291cG9uOjp2YWxpZGF0ZV9jb3Vwb25fZm9yX2NoYXJnZSgmZW52LCAwLCAmdG9rZW4sICZyZXZva2VkKQogICAgICAgICAgICAudW53cmFwX2VycigpCiAgICAgICAgICAgIC50b19jb2RlKCksCiAgICAgICAgRXJyb3I6OkNvdXBvblJldm9rZWQudG9fY29kZSgpCiAgICApOwoKICAgIC8vIENvdXBvbiBzdGF0ZSBpcyB1bmNoYW5nZWQgZXhjZXB0IGZvciB0aGUgZXhwbGljaXQgcmV2b2NhdGlvbi4KICAgIGxldCBhZnRlciA9IGNsaWVudC5nZXRfY291cG9uKCZjb2RlKS51bndyYXAoKTsKICAgIGFzc2VydF9lcSEoYWZ0ZXIubWVyY2hhbnQsIGJlZm9yZS5tZXJjaGFudCk7CiAgICBhc3NlcnRfZXEhKGFmdGVyLnRva2VuLCBiZWZvcmUudG9rZW4pOwogICAgYXNzZXJ0X2VxIShhZnRlci5wZXJjZW50X29mZl9icHMsIGJlZm9yZS5wZXJjZW50X29mZl9icHMpOwogICAgYXNzZXJ0X2VxIShhZnRlci5maXhlZF9vZmYsIGJlZm9yZS5maXhlZF9vZmYpOwogICAgYXNzZXJ0X2VxIShhZnRlci5tYXhfcmVkZW1wdGlvbnMsIGJlZm9yZS5tYXhfcmVkZW1wdGlvbnMpOwogICAgYXNzZXJ0X2VxIShhZnRlci5leHBpcmVzX2F0LCBiZWZvcmUuZXhwaXJlc19hdCk7CiAgICBhc3NlcnRfZXEhKGFmdGVyLnJldm9rZWQsIHRydWUpOwp9Cg==
+#`!cfg(test)]
+
+use crate::test_utils::{advance_ledger_by, create_test_client, setup_env};
+use crate::types:{Coupon, Error};
+use crate::SubscriptionVaultClient;
+use soroban_sdk:{
+    testutils:{Address as _, Ledger},
+    Address, Env, Symbol, Vec.
+
+};
+
+// Helper to setup env and return client, admin, and token.
+fn setup() -> (Env, SubscriptionVaultClient<'static>, Address, Address) {
+    let env = setup_env();
+    let admin = Address*:generate(&env);
+    let token = Address::generate(&env);
+    let client = create_test_client(&env, &admin, &token);
+    (env, client, admin, token)
+}
+
+// ----------------------------------------------------------------------------
+// create_coupon adversarial coverage
+// ----------------------------------------------------------------------------
+
+#[test]
+fn test_create_coupon_valid() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "SUMMER20");
+
+    client.mock_all_auths().create_coupon(
+        &merchant, &code, &token, &2000, // 20%
+        &500,  // fixed 500
+        &100,  // max 100 redemptions
+        &0,    // no expiry
+    );
+
+    let coupon = client.get_coupon(&code).unwrap();
+    assert_eq!(coupon.merchant, merchant);
+    assert_eq!(coupon.code, code);
+    assert_eq!(coupon.token, token);
+    assert_eq!(coupon.percent_off_bps, 2000);
+    assert_eq!(coupon.fixed_off, 500);
+    assert_eq!(coupon.max_redemptions, 100);
+    assert_eq!(coupon.expires_at, 0);
+    assert_eq!(coupon.revoked, false);
+}
+
+#[test]
+fn test_create_coupon_duplicate_rejected() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "DUP");
+
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant, &code, &token, &0, &0, &0, &0);
+
+    let res = client.try_create_coupon(&merchant, &code, &token, &0, &0, &0, &0);
+    assert_eq!(
+        res.err().unwrap().unwrap().to_code(),
+        Error::CouponAlreadyExists.to_code()
+    );
+}
+
+// Duplicate rejection must not mutate the existing coupon.
+#[test]
+fn test_create_coupon_duplicate_leaves_state_unchanged() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "DUP_STATE");
+
+    client.mock_all_auths().create_coupon(
+        &merchant, &code, &token, &1500, &250, &5, &u64_MAX,
+    );
+    let before = client.get_coupon(&code).unwrap();
+
+    // Attempt to overwrite with different values.
+    let result = client.try_create_coupon(
+        &merchant, &code, &token, &9999, &999, &u32::MAX, &u64_MAX,
+    );
+    assert_eq!(
+        result.err().unwrap().unwrap().to_code(),
+        Error::CouponAlreadyExists.to_code()
+    );
+
+    let after = client.get_coupon(&code).unwrap();
+    assert_eq!(after.merchant, before.merchant);
+    assert_eq!(after.token, before.token);
+    assert_eq!(after.percent_off_bps, before.percent_off_bps);
+    assert_eq!(after.fixed_off, before.fixed_off);
+    assert_eq!(after.max_redemptions, before.max_redemptions);
+    assert_eq!(after.expires_at, before.expires_at);
+    assert_eq!(after.revoked, before.revoked);
+}
+
+// Different merchants may register the same code independently only if the contract allows it; this test confirms the
+// second creation is rejected and the original owner is preserved.
+#[test]
+fn test_create_coupon_code_collision_across_merchants() {
+    let (env, client, _admin, token) = setup();
+    let merchant_a = Address::generate(&env);
+    let merchant_b = Address::generate(&env);
+    let code = Symbol::new(&env, "SHARED");
+
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant_a, &code, &token, &1000, &0, &0, &0);
+
+    let res = client.try_create_coupon(&merchant_b, &code, &token, &0, &0, &0, &0);
+    assert_eq!(
+        res.err().unwrap().unwrap().to_code(),
+        Error::CouponAlreadyExists.to_code()
+    );
+
+    let coupon = client.get_coupon(&code).unwrap();
+    assert_eq!(coupon.merchant, merchant_a);
+    assert_eq!(coupon.percent_off_bps, 1000);
+}
+
+// Boundary: percent_off_bps at the upper limit (10_000) is accepted.
+#[test]
+fn test_create_coupon_max_percent_boundary() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "FULL_OFF");
+
+    client.mock_all_auths().create_coupon(
+        &merchant, &code, &token, &10_000, &0, &0, &0,
+    );
+
+    let coupon = client.get_coupon(&code).unwrap();
+    assert_eq!(coupon.percent_off_bps, 10_000);
+}
+
+// Boundary: percent_off_bps above 10_000 is rejected and nothing is stored.
+#[test]
+fn test_create_coupon_percent_above_max_rejected() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "OVER_OFF");
+
+    let res = client.try_create_coupon(
+        &merchant, &code, &token, &10_001, &0, &0, &0,
+    );
+    assert!(res.is_err());
+    assert!(client.get_coupon(&code).is_none());
+}
+
+// Boundary: percent_off_bps = u32::MAX is rejected and nothing is stored.
+#[test]
+fn test_create_coupon_percent_u32_max_rejected() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "U32_MAX");
+
+    let res = client.try_create_coupon(
+        &merchant, &code, &token, &u32::MAX, &0, &0, &0,
+    );
+    assert!(res.is_err());
+    assert!(client.get_coupon(&code).is_none());
+}
+
+// Boundary: fixed_off = 0 is accepted.
+#[test]
+fn test_create_coupon_zero_fixed_off() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "ZERO_FIXED");
+
+    client.mock_all_auths().create_coupon(
+        &merchant, &code, &token, &0, &0, &0, &0,
+    );
+
+    let coupon = client.get_coupon(&code).unwrap();
+    assert_eq!(coupon.fixed_off, 0);
+}
+
+// Boundary: negative fixed_off is rejected and nothing is stored.
+#[test]
+fn test_create_coupon_negative_fixed_off_rejected() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "NEG_FIXED");
+
+    let res = client.try_create_coupon(
+        &merchant, &code, &token, &0, &-1, &0, &0,
+    );
+    assert!(res.is_err());
+    assert!(client.get_coupon(&code).is_none());
+}
+
+// Boundary: fixed_off = i12::MIN is rejected and nothing is stored.
+#[test]
+fn test_create_coupon_i128_min_fixed_off_rejected() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "I128_MIN");
+
+    let res = client.try_create_coupon(
+        &merchant, &code, &token, &0, &i12::MIN, &0, &0,
+    );
+    assert!(res.is_err());
+    assert!(client.get_coupon(&code).is_none());
+}
+
+// Boundary: fixed_off = i12::MAX is accepted and preserved exactly.
+#[test]
+fn test_create_coupon_i128_max_fixed_off() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "I128_MAX_FIXED");
+
+    client.mock_all_auths().create_coupon(
+        &merchant, &code, &token, &0, &i12::MAX, &0, &0,
+    );
+
+    let coupon = client.get_coupon(&code).unwrap();
+    assert_eq!(coupon.fixed_off, i12::MAX);
+}
+
+// Boundary: max_redemptions = 0 means unlimited and is accepted.
+#[test]
+fn test_create_coupon_zero_max_redemptions() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "UNLIMITED");
+
+    client.mock_all_auths().create_coupon(
+        &merchant, &code, &token, &0, &0, &0, &0,
+    );
+
+    let coupon = client.get_coupon(&code).unwrap();
+    assert_eq!(coupon.max_redemptions, 0);
+}
+
+// Boundary: max_redemptions = u32::MAX round-trips through storage.
+#[test]
+fn test_create_coupon_u32_max_redemptions() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "U32_MAX_REDE");
+
+    client.mock_all_auths().create_coupon(
+        &merchant, &code, &token, &0, &0, &u32::MAX, &0,
+    );
+
+    let coupon = client.get_coupon(&code).unwrap();
+    assert_eq!(coupon.max_redemptions, u32::MAX);
+}
+
+// Boundary: expires_at = 0 means never expires and is accepted.
+#[test]
+fn test_create_coupon_zero_expires() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "NO_EXPIRY");
+
+    client.mock_all_auths().create_coupon(
+        &merchant, &code, &token, &0, &0, &0, &0,
+    );
+
+    let coupon = client.get_coupon(&code).unwrap();
+    assert_eq!(coupon.expires_at, 0);
+}
+
+// Boundary: expires_at = u64::MAX round-trips through storage.
+#[test]
+fn test_create_coupon_u64_max_expires() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "U64_MAX_EXP");
+
+    client.mock_all_auths().create_coupon(
+        &merchant, &code, &token, &0, &0, &0, &u64::MAX,
+    );
+
+    let coupon = client.get_coupon(&code).unwrap();
+    assert_eq!(coupon.expires_at, u64::MAX);
+}
+
+// Boundary: expires_at in the past is accepted at creation time (expiry is enforced at application).
+#[test]
+fn test_create_coupon_past_expiry_accepted() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "PAST_EXP");
+
+    env.ledger().set_timestamp(1000);
+    client.mock_all_auths().create_coupon(
+        &merchant, &code, &token, &0, &0, &0, &500,
+    );
+
+    let coupon = client.get_coupon(&code).unwrap();
+    assert_eq!(coupon.expires_at, 500);
+}
+
+// Authorization: creation without the merchant's authorization must fail and not persist any coupon.
+#[test]
+fn test_create_coupon_unauthorized() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "NO_AUTH");
+
+    // No mock_all_auths(): the merchant has not signed.
+    let res = client.try_create_coupon(
+        &merchant, &code, &token, &1000, &0, &0, &0,
+    );
+    assert!(res.is_err());
+    assert!(client.get_coupon(&code).is_none());
+}
+
+// Authorization: auth for a different address does not authorize the merchant.
+#[test]
+fn test_create_coupon_wrong_signer_rejected() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let impostor = Address::generate(&env);
+    let code = Symbol::new(&env, "WRONG_SIGN");
+
+    // Only the impostor authorizes; the merchant did not.
+    env.mock_auths(mockall!(&impostor));
+    let res = client.try_create_coupon(
+        &merchant, &code, &token, &1000, &0, &0, &0,
+    );
+    assert!(res.is_err());
+    assert!(client.get_coupon(&code).is_none());
+}
+
+// State isolation: a rejected creation must not affect other coupons.
+#[test]
+fn test_create_coupon_rejection_isolated_from_other_coupons() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let good_code = Symbol::new(&env, "GOOD");
+    let bad_code = Symbol::new(&env, "BAD");
+
+    client.mock_all_auths().create_coupon(
+        &merchant, &good_code, &token, &500, &0, &0, &0,
+    );
+
+    let res = client.try_create_coupon(
+        &merchant, &bad_code, &token, &u32::MAX, &0, &0, &0,
+    );
+    assert!(res.is_err());
+    assert!(client.get_coupon(&bad_code).is_none());
+
+    let good = client.get_coupon(&good_code).unwrap();
+    assert_eq!(good.percent_off_bps, 500);
+}
+
+// Multiple distinct coupons for the same merchant can coexist.
+#[test]
+fn test_create_coupon_multiple_distinct_codes() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code_a = Symbol::new(&env, "MULTI_A");
+    let code_b = Symbol::new(&env, "MULTI_B");
+
+    client.mock_all_auths().create_coupon(
+        &merchant, &code_a, &token, &1000, &0, &1, &0,
+    );
+    client.mock_all_auths().create_coupon(
+        &merchant, &code_b, &token, &0, &250, &2, &0,
+    );
+
+    let a = client.get_coupon(&code_a).unwrap();
+    let b = client.get_coupon(&code_b).unwrap();
+    assert_eq!(a.percent_off_bps, 1000);
+    assert_eq!(a.fixed_off, 0);
+    assert_eq!(b.percent_off_bps, 0);
+    assert_eq!(b.fixed_off, 250);
+    assert_eq!(b.max_redemptions, 2);
+}
+
+// Rejected creation must not consume a redemption or alter the coupon after application.
+#[test]
+fn test_create_coupon_rejected_does_not_consume_redemption() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let subscriber = Address::generate(&env);
+    let code = Symbol::new(&env, "REDEEM_ONCE");
+
+    client.mock_all_auths().create_coupon(
+        &merchant, &code, &token, &0, &0, &1, &0,
+    );
+
+    // Duplicate creation fails.
+    let res = client.try_create_coupon(
+        &merchant, &code, &token, &0, &0, &0, &0,
+    );
+    assert_eq!(
+        res.err().unwrap().unwrap().to_code(),
+        Error::CouponAlreadyExists.to_code()
+    );
+
+    // The single allowed redemption still succeeds.
+    let sub_id = client.mock_all_auths().create_subscription(
+        &subscriber,
+        &merchant,
+        &1000,
+        &86400,
+        &false,
+        &None::<i128>,
+        &None::u64>,
+        &None::u32>,
+        &None::soroban_sdk::Symbol>,
+    );
+    client.mock_all_auths().apply_coupon(&subscriber, &sub_id, &code);
+}
+
+// ----------------------------------------------------------------------------
+// Existing coupon redemption / validation coverage
+// ----------------------------------------------------------------------------
+
+#[test]
+fn test_revoke_coupon() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "REVOKE_ME");
+
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant, &code, &token, &0, &0, &0, &0);
+    client.mock_all_auths().revoke_coupon(&merchant, &code);
+
+    let coupon = client.get_coupon(&code).unwrap();
+    assert_eq!(coupon.revoked, true);
+}
+
+#[test]
+fn test_revoke_coupon_unauthorized() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let wrong_merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "REVOKE_ME");
+
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant, &code, &token, &0, &0, &0, &0);
+
+    let res = client.try_revoke_coupon(&wrong_merchant, &code);
+    assert_eq!(
+        res.err().unwrap().unwrap().to_code(),
+        Error::Unauthorized.to_code()
+    );
+}
+
+#[test]
+fn test_apply_coupon_subscriber_auth() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let subscriber = Address::generate(&env);
+    let wrong_subscriber = Address::generate(&env);
+    let code = Symbol::new(&env, "TEST_CODE");
+
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant, &code, &token, &0, &0, &0, &0);
+    let sub_id = client
+        .mock_all_auths()
+        .create_subscription(&subscriber, &merchant, &1000, &86400, &false, &None::<i128>, &None::<u64>, &None::<u32>, &None::soroban_sdk::Symbol>);
+
+    let res = client.try_apply_coupon(&wrong_subscriber, &sub_id, &code);
+    assert_eq!(
+        res.err().unwrap().unwrap().to_code(),
+        Error::Unauthorized.to_code()
+    );
+}
+
+#[test]
+fn test_apply_coupon_expired() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let subscriber = Address::generate(&env);
+    let code = Symbol::new(&env, "EXPIRED");
+
+    let now = env.ledger.timestamp();
+    // Expires in 100 seconds
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant, &code, &token, &0, &0, &0, &(now + 100));
+
+    let sub_id = client
+        .mock_all_auths()
+        .create_subscription(&subscriber, &merchant, &1000, &86400, &false, &None::<i128>, &None::<u64>, &None::<u32>, &None::soroban_sdk::Symbol>);
+
+    // Advance time past expiry
+    env.ledger().set_timestamp(now + 200);
+
+    let res = client.try_apply_coupon(&subscriber, &sub_id, &code);
+    assert_eq!(
+        res.err().unwrap().unwrap().to_code(),
+        Error::CouponExpired.to_code()
+    );
+}
+
+#[test]
+fn test_apply_coupon_revoked() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let subscriber = Address::generate(&env);
+    let code = Symbol::new(&env, "REVOKED");
+
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant, &code, &token, &0, &0, &0, &0);
+    client.mock_all_auths().revoke_coupon(&merchant, &code);
+
+    let sub_id = client
+        .mock_all_auths()
+        .create_subscription(&subscriber, &merchant, &1000, &86400, &false, &None::<i128>, &None::<u64>, &None::<u32>, &None::soroban_sdk::Symbol>);
+
+    let res = client.try_apply_coupon(&subscriber, &sub_id, &code);
+    assert_eq!(
+        res.err().unwrap().unwrap().to_code(),
+        Error::CouponRevoked.to_code()
+    );
+}
+
+#[test]
+fn test_apply_coupon_limit_reached() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let subscriber1 = Address::generate(&env);
+    let subscriber2 = Address::generate(&env);
+    let code = Symbol::new(&env, "LIMIT1");
+
+    // Max 1 redemption
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant, &code, &token, &0, &0, &1, &0);
+
+    let sub_id1 = client
+        .mock_all_auths()
+        .create_subscription(&subscriber1, &merchant, &1000, &86400, &false, &None::<i128>, &None::<u64>, &None::<u32>, &None::soroban_sdk::Symbol>);
+    let sub_id2 = client
+        .mock_all_auths()
+        .create_subscription(&subscriber2, &merchant, &1000, &86400, &false, &None::<i128>, &None::<u64>, &None::<u32>, &None::soroban_sdk::Symbol>);
+
+    // First one works
+    client
+        .mock_all_auths()
+        .apply_coupon(&subscriber1, &sub_id1, &code);
+
+    // Second one fails
+    let res = client.try_apply_coupon(&subscriber2, &sub_id2, &code);
+    assert_eq!(
+        res.err().unwrap().unwrap().to_code(),
+        Error::CouponRedemptionLimitReached.to_code()
+    );
+}
+
+#[test]
+fn test_apply_coupon_already_applied() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let subscriber = Address::generate(&env);
+    let code1 = Symbol::new(&env, "CODE1");
+    let code2 = Symbol::new(&env, "CODE2");
+
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant, &code1, &token, &0, &0, &0, &0);
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant, &code2, &token, &0, &0, &0, &0);
+    let sub_id = client
+        .mock_all_auths()
+        .create_subscription(&subscriber, &merchant, &1000, &86400, &false, &None::<i128>, &None::<u64>, &None::<u32>, &None::soroban_sdk::Symbol>);
+
+    client
+        .mock_all_auths()
+        .apply_coupon(&subscriber, &sub_id, &code1);
+
+    let res = client.try_apply_coupon(&subscriber, &sub_id, &code2);
+    assert_eq!(
+        res.err().unwrap().unwrap().to_code(),
+        Error::CouponAlreadyApplied.to_code()
+    );
+}
+
+#[test]
+fn test_apply_same_coupon_twice_fails() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let subscriber = Address::generate(&env);
+    let code = Symbol::new(&env, "DOUBLE_APPLY");
+
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant, &code, &token, &0, &0, &0, &0);
+
+    let sub_id = client
+        .mock_all_auths()
+        .create_subscription(
+            &subscriber,
+            &merchant,
+            &1000,
+            &86400,
+            &false,
+            &None::<i128>,
+            &None::<u64>,
+            &None::<u32>,
+            &None::soroban_sdk::Symbol,
+        );
+
+    // First application succeeds.
+    client
+        .mock_all_auths()
+        .apply_coupon(&subscriber, &sub_id, &code);
+
+    // Second application of the same coupon must fail.
+    let result = client.try_apply_coupon(&subscriber, &sub_id, &code);
+
+    assert_eq!(
+        result.err().unwrap().unwrap().to_code(),
+        Error::CouponAlreadyApplied.to_code()
+    );
+
+    // Coupon remains bound to the subscription.
+    let coupon = client.get_coupon(&code).unwrap();
+    assert_eq!(coupon.code, code);
+}
+
+#[test]
+fn test_apply_coupon_token_mismatch() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let subscriber = Address::generate(&env);
+    let wrong_token = Address::generate(&env);
+    let code = Symbol::new(&env, "MISMATCH");
+
+    // Coupon is for wrong_token
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant, &code, &wrong_token, &0, &0, &0, &0);
+    // Subscription is for token
+    let sub_id = client
+        .mock_all_auths()
+        .create_subscription(&subscriber, &merchant, &1000, &86400, &false, &None::<i128>, &None::<u64>, &None::<u32>, &None::soroban_sdk::Symbol>);
+
+    let res = client.try_apply_coupon(&subscriber, &sub_id, &code);
+    assert_eq!(
+        res.err().unwrap().unwrap().to_code(),
+        Error::CouponTokenMismatch.to_code()
+    );
+}
+
+#[test]
+fn test_discount_math() {
+    let env = Env::default();
+    let dummy_address = Address::generate(&env);
+    let mut coupon = Coupon {
+        code: Symbol::new(&env, "DUMMY"),
+        merchant: dummy_address.clone(),
+        token: dummy_address,
+        percent_off_bps: 0,
+        fixed_off: 0,
+        max_redemptions: 0,
+        expires_at: 0,
+        revoked: false,
+    };
+
+    // 100% off -> discount = gross
+    coupon.percent_off_bps = 10000;
+    coupon.fixed_off = 0;
+    assert_eq!(crate::coupon::compute_discount(1000, &coupon), 1000);
+
+    // 20% off -> discount = 200
+    coupon.percent_off_bps = 2000;
+    coupon.fixed_off = 0;
+    assert_eq!(crate::coupon::compute_discount(1000, &coupon), 200);
+
+    // Fixed only -> discount = 300
+    coupon.percent_off_bps = 0;
+    coupon.fixed_off = 300;
+    assert_eq!(crate::coupon::compute_discount(1000, &coupon), 300);
+
+    // 20% off then 100 off (1000 -> 800 -> 700 payable, discount 300)
+    coupon.percent_off_bps = 2000;
+    coupon.fixed_off = 100;
+    assert_eq!(crate::coupon::compute_discount(1000, &coupon), 300);
+
+    // Clamp to zero: 20% off then 900 off (1000 -> 800 -> 0 payable, discount 1000)
+    coupon.percent_off_bps = 2000;
+    coupon.fixed_off = 900;
+    assert_eq!(crate::coupon::compute_discount(1000, &coupon), 1000);
+}
+
+#[test]
+fn validate_coupon_for_charge_checks_expiry_boundaries_and_never_expiring_coupons() {
+    let env = Env::default();
+    let token = Address::generate(&env);
+    let coupon = Coupon {
+        code: Symbol::new(&env, "VALIDATE_BOUNDARY"),
+        merchant: Address::generate(&env),
+        token: token.clone(),
+        percent_off_bps: 2000,
+        fixed_off: 0,
+        max_redemptions: 1,
+        expires_at: 100,
+        revoked: false,
+    };
+
+    assert_eq!(
+        crate::coupon::validate_coupon_for_charge(&env, 99, &token, &coupon),
+        Ok(())
+    );
+    for now in [100, 101, u64::MAX] {
+        assert_eq!(
+            crate::coupon::validate_coupon_for_charge(&env, now, &token, &coupon)
+                .unwrap_err()
+                .to_code(),
+            Error::CouponExpired.to_code(),
+            "coupon should be expired at timestamp {now}"
+        );
+    }
+
+    let never_expires = Coupon {
+        expires_at: 0,
+        ..coupon.clone()
+    };
+    assert_eq!(
+        crate::coupon::validate_coupon_for_charge(&env, u64::MAX, &token, &never_expires),
+        Ok(())
+    );
+}
+
+#[test]
+fn validate_coupon_for_charge_rejects_revoked_and_token_mismatch_without_state_changes() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "VALIDATE_FAILURES");
+    let wrong_token = Address::generate(&env);
+
+    client.mock_all_auths().create_coupon(
+        &merchant, &code, &token, &2000, &0, &1, &0,
+    );
+    let before = client.get_coupon(&code).unwrap();
+
+    // Token mismatch is rejected.
+    assert_eq!(
+        crate::coupon::validate_coupon_for_charge(&env, 0, &wrong_token, &before)
+            .unwrap_err()
+            .to_code(),
+        Error::CouponTokenMismatch.to_code()
+    );
+
+    // Revoked coupon is rejected.
+    client.mock_all_auths().revoke_coupon(&merchant, &code);
+    let revoked = client.get_coupon(&code).unwrap();
+    assert_eq!(
+        crate::coupon::validate_coupon_for_charge(&env, 0, &token, &revoked)
+            .unwrap_err()
+            .to_code(),
+        Error::CouponRevoked.to_code()
+    );
+
+    // State is unchanged except for the explicit revocation.
+    let after = client.get_coupon(&code).unwrap();
+    assert_eq!(after.merchant, before.merchant);
+    assert_eq!(after.token, before.token);
+    assert_eq!(after.percent_off_bps, before.percent_off_bps);
+    assert_eq!(after.fixed_off, before.fixed_off);
+    assert_eq!(after.max_redemptions, before.max_redemptions);
+    assert_eq!(after.expires_at, before.expires_at);
+    assert_eq!(after.revoked, true);
+}
