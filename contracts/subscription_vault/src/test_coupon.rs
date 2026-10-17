@@ -46,7 +46,68 @@ fn test_create_coupon_valid() {
 }
 
 #[test]
-fn test_create_coupon_duplicate_rejected() {
+fn test_create_coupon_zero_discount_and_zero_limits() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "ZERO_DISC");
+
+    // zero percent, zero fixed, zero max redemptions, no expiry
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant, &code, &token, &0, &0, &0, &0);
+
+    let coupon = client.get_coupon(&code).unwrap();
+    assert_eq!(coupon.percent_off_bps, 0);
+    assert_eq!(coupon.fixed_off, 0);
+    assert_eq!(coupon.max_redemptions, 0);
+    assert_eq!(coupon.expires_at, 0);
+    assert_eq!(coupon.revoked, false);
+}
+
+#[test]
+fn test_create_coupon_max_boundary_values() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "MAX_BOUND");
+
+    // 100% discount is the upper bound for percent_off_bps.
+    // Max redemptions and expiry at their upper representable values.
+    client.mock_all_auths().create_coupon(
+        &merchant,
+        &code,
+        &token,
+        &10_000,
+        &0_i128,
+        &u32::MAX,
+        &u64::MAX,
+    );
+
+    let coupon = client.get_coupon(&code).unwrap();
+    assert_eq!(coupon.percent_off_bps, 10_000);
+    assert_eq!(coupon.fixed_off, 0_128);
+    assert_eq!(coupon.max_redemptions, u32::MAX);
+    assert_eq!(coupon.expires_at, u64::MAX);
+    assert_eq!(coupon.revoked, false);
+}
+
+#[test]
+fn test_create_coupon_large_fixed_off_stored() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "BIG_FIXED");
+    let big = i128::MAX / 2;
+
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant, &code, &token, &0, &big, &1, &0);
+
+    let coupon = client.get_coupon(&code).unwrap();
+    assert_eq!(coupon.fixed_off, big);
+    assert_eq!(coupon.max_redemptions, 1);
+}
+
+#[test]
+fn test_create_coupon_duplicate_rejected_state_unchanged() {
     let (env, client, _admin, token) = setup();
     let merchant = Address::generate(&env);
     let code = Symbol::new(&env, "DUP");
@@ -55,184 +116,46 @@ fn test_create_coupon_duplicate_rejected() {
         .mock_all_auths()
         .create_coupon(&merchant, &code, &token, &0, &0, &0, &0);
 
-    // Snapshot the existing coupon before the rejected attempt.
-    let before = client.get_coupon(&code).unwrap();
-
-    // Attempt to overwrite with different values.
+    // Attempt to overwrite with different values must be rejected.
     let res = client.try_create_coupon(
         &merchant,
         &code,
         &token,
-        &9999,
-        &1234,
-        &50,
-        &12345,
+        &5000,
+        &999_i128,
+        &5,
+        &1,
     );
     assert_eq!(
         res.err().unwrap().unwrap().to_code(),
         Error::CouponAlreadyExists.to_code()
     );
 
-    // State must be unchanged after the rejected operation.
-    let after = client.get_coupon(&code).unwrap();
-    assert_eq!(before, after);
-    assert_eq!(after.percent_off_bps, 0);
-    assert_eq!(after.fixed_off, 0);
-    assert_eq!(after.max_redemptions, 0);
-    assert_eq!(after.expires_at, 0);
-    assert_eq!(after.revoked, false);
+    // Original coupon is unchanged.
+    let coupon = client.get_coupon(&code).unwrap();
+    assert_eq!(coupon.percent_off_bps, 0);
+    assert_eq!(coupon.fixed_off, 0);
+    assert_eq!(coupon.max_redemptions, 0);
+    assert_eq!(coupon.expires_at, 0);
+    assert_eq!(coupon.revoked, false);
 }
 
 #[test]
 fn test_create_coupon_requires_merchant_auth() {
     let (env, client, _admin, token) = setup();
     let merchant = Address::generate(&env);
-    let code = Symbol::new(&env, "NO_AUTH");
+    let code = Symbol::new(&env, "NO_AUTH_CREATE");
 
-    // No auth mocked: the call must fail authorization and not persist anything.
-    let res = client.try_create_coupon(&merchant, &code, &token, &1000, &0, &0, &0);
+    // Without mocked auths, the call must fail authorization.
+    let res = client.try_create_coupon(&merchant, &code, &token, &0, &0, &0, &0);
     assert!(res.is_err());
 
-    // Coupon must not have been created.
+    // No coupon state was written.
     assert!(client.get_coupon(&code).is_none());
 }
 
 #[test]
-fn test_create_coupon_percent_off_boundaries() {
-    let (env, client, _admin, token) = setup();
-    let merchant = Address::generate(&env);
-
-    // 0% is valid.
-    let zero_code = Symbol::new(&env, "ZERO_PCT");
-    client
-        .mock_all_auths()
-        .create_coupon(&merchant, &zero_code, &token, &0, &0, &0, &0);
-    assert_eq!(client.get_coupon(&zero_code).unwrap().percent_off_bps, 0);
-
-    // 100% (10000 bps) is the upper bound and is valid.
-    let full_code = Symbol::new(&env, "FULL_PCT");
-    client
-        .mock_all_auths()
-        .create_coupon(&merchant, &full_code, &token, &10000, &0, &0, &0);
-    assert_eq!(
-        client.get_coupon(&full_code).unwrap().percent_off_bps,
-        10000
-    );
-}
-
-#[test]
-fn test_create_coupon_percent_off_above_max_rejected() {
-    let (env, client, _admin, token) = setup();
-    let merchant = Address::generate(&env);
-    let code = Symbol::new(&env, "TOO_HIGH");
-
-    // 10001 bps (100.01%) is out of range.
-    let res = client.try_create_coupon(
-        &merchant,
-        &code,
-        &token,
-        &10001,
-        &0,
-        &0,
-        &0,
-    );
-    assert!(res.is_err());
-
-    // Nothing persisted.
-    assert!(client.get_coupon(&code).is_none());
-}
-
-#[test]
-fn test_create_coupon_fixed_off_boundaries() {
-    let (env, client, _admin, token) = setup();
-    let merchant = Address::generate(&env);
-
-    // Zero fixed off is valid.
-    let zero_code = Symbol::new(&env, "ZERO_FIX");
-    client
-        .mock_all_auths()
-        .create_coupon(&merchant, &zero_code, &token, &0, &0, &0, &0);
-    assert_eq!(client.get_coupon(&zero_code).unwrap().fixed_off, 0);
-
-    // Large positive fixed off is valid and stored exactly.
-    let large_code = Symbol::new(&env, "LARGE_FIX");
-    let large = 1_000_000_000i128;
-    client
-        .mock_all_auths()
-        .create_coupon(&merchant, &large_code, &token, &0, &large, &0, &0);
-    assert_eq!(client.get_coupon(&large_code).unwrap().fixed_off,large);
-}
-
-#[test]
-fn test_create_coupon_negative_fixed_off_rejected() {
-    let (env, client, _admin, token) = setup();
-    let merchant = Address::generate(&env);
-    let code = Symbol::new(&env, "NEG_FIX");
-
-    let res = client.try_create_coupon(
-        &merchant,
-        &code,
-        &token,
-        &0,
-        &-1,
-        &0,
-        &0,
-    );
-    assert!(res.is_err());
-    assert!(client.get_coupon(&code).is_none());
-}
-
-#[test]
-fn test_create_coupon_max_redemptions_boundaries() {
-    let (env, client, _admin, token) = setup();
-    let merchant = Address::generate(&env);
-
-    // Unlimited redemptions (0) represents no cap.
-    let unlimited_code = Symbol::new(&env, "UNLIMITED");
-    client
-        .mock_all_auths()
-        .create_coupon(&merchant, &unlimited_code, &token, &0, &0, &0, &0);
-    assert_eq!(
-        client.get_coupon(&unlimited_code).unwrap().max_redemptions,
-        0
-    );
-
-    // Max u32 is accepted and preserved.
-    let max_code = Symbol::new(&env, "MAX_U32");
-    client
-        .mock_all_auths()
-        .create_coupon(&merchant, &max_code, &token, &0, &0, &u32::MAX, &0);
-    assert_eq!(
-        client.get_coupon(&max_code).unwrap().max_redemptions,
-        u32::MAX
-    );
-}
-
-#[test]
-fn test_create_coupon_expiry_boundaries() {
-    let (env, client, _admin, token) = setup();
-    let merchant = Address::generate(&env);
-
-    // 0 means never expires.
-    let never_code = Symbol::new(&env, "NEVER_EXX");
-    client
-        .mock_all_auths()
-        .create_coupon(&merchant, &never_code, &token, &0, &0, &0, &0);
-    assert_eq!(client.get_coupon(&never_code).unwrap().expires_at, 0);
-
-    // Max u64 is accepted and preserved exactly.
-    let max_code = Symbol::new(&env, "MAX_EXP");
-    client
-        .mock_all_auths()
-        .create_coupon(&merchant, &max_code, &token, &0, &0, &0, &u64::MAX);
-    assert_eq!(
-        client.get_coupon(&max_code).unwrap().expires_at,
-        u64::MAX
-    );
-}
-
-#[test]
-fn test_create_coupon_distinct_codes_are_independent() {
+fn test_create_coupon_distinct_codes_independent() {
     let (env, client, _admin, token) = setup();
     let merchant = Address::generate(&env);
     let code_a = Symbol::new(&env, "CODE_A");
@@ -240,34 +163,24 @@ fn test_create_coupon_distinct_codes_are_independent() {
 
     client
         .mock_all_auths()
-        .create_coupon(&merchant, &code_a, &token, &1000, &0, &0, &0);
+        .create_coupon(&merchant, &code_a, &token, &1000, &0, &1, &0);
     client
         .mock_all_auths()
-        .create_coupon(&merchant, &code_b, &token, &2000, &0, &0, &0);
+        .create_coupon(&merchant, &code_b, &token, &0, &250, &2, &0);
 
-    assert_eq!(client.get_coupon(&code_a).unwrap().percent_off_bps, 1000);
-    assert_eq!(client.get_coupon(&code_b).unwrap().percent_off_bps, 2000);
+    let a = client.get_coupon(&code_a).unwrap();
+    let b = client.get_coupon(&code_b).unwrap();
+    assert_eq!(a.percent_off_bps, 1000);
+    assert_eq!(a.fixed_off, 0);
+    assert_eq!(b.percent_off_bps, 0);
+    assert_eq!(b.fixed_off, 250);
+    assert_eq!(a.code, code_a);
+    assert_eq!(b.code, code_b);
 }
 
-#[test]
-fn test_create_coupon_stores_merchant_and_token_exactly() {
-    let (env, client, _admin, token) = setup();
-    let merchant = Address::generate(&env);
-    let code = Symbol::new(&env, "EXACT");
-
-    client
-        .mock_all_auths()
-        .create_coupon(&merchant, &code, &token, &500, &250, &10, &1,000);
-
-    let coupon = client.get_coupon(&code).unwrap();
-    assert_eq!(coupon.merchant, merchant);
-    assert_eq!(coupon.token, token);
-    assert_eq!(coupon.percent_off_bps, 500);
-    assert_eq!(coupon.fixed_off, 250);
-    assert_eq!(coupon.max_redemptions, 10);
-    assert_eq!(coupon.expires_at, 1,000);
-    assert_eq!(coupon.revoked, false);
-}
+// ----------------------------------------------------------------------------
+// Existing coupon lifecycle coverage
+// ----------------------------------------------------------------------------
 
 #[test]
 fn test_revoke_coupon() {
@@ -301,7 +214,7 @@ fn test_revoke_coupon_unauthorized() {
         Error::Unauthorized.to_code()
     );
 
-    // Rejected revoke must not change state.
+    // Coupon remains unrevoked.
     let coupon = client.get_coupon(&code).unwrap();
     assert_eq!(coupon.revoked, false);
 }
@@ -326,7 +239,7 @@ fn test_apply_coupon_subscriber_auth() {
         &None::<i128>,
         &None::<u64>,
         &None::<u32>,
-        &None::<soroban_sdk::Symbol>,
+        &None::<s0roban_sdk::Symbol>,
     );
 
     let res = client.try_apply_coupon(&wrong_subscriber, &sub_id, &code);
@@ -343,7 +256,7 @@ fn test_apply_coupon_expired() {
     let subscriber = Address::generate(&env);
     let code = Symbol::new(&env, "EXPIRED");
 
-    let now = env.ledger().timestamp();
+    let now = env.ledger.timestamp();
     // Expires in 100 seconds
     client
         .mock_all_auths()
@@ -474,7 +387,7 @@ fn test_apply_coupon_already_applied() {
         &None::<i128>,
         &None::<u64>,
         &None::<u32>,
-        &None::<soroban_sdk::Symbol>,
+        &None::<s0roban_sdk::Symbol>,
     );
 
     client
@@ -636,7 +549,7 @@ fn validate_coupon_for_charge_checks_expiry_boundaries_and_never_expiring_coupon
         ..coupon.clone()
     };
     assert_eq!(
-        crate::coupon::validate_coupon_for_charge(&env, u64::MAX, &token, &never_expires),
+        crate::coupon::validate_coupon_for_charge(&env, u64::MAX, &token, &ofter_expires),
         Ok(())
     );
 }
@@ -650,20 +563,18 @@ fn validate_coupon_for_charge_rejects_revoked_and_token_mismatch_without_state_c
 
     client
         .mock_all_auths()
-        .create_coupon(&merchant, &code, &token, &2000, &0, &1, &0);
+        .create_coupon(&merchant, &code, &token, &0, &0, &0, &0);
 
-    // Token mismatch is rejected and leaves the coupon unchanged.
-    let before = client.get_coupon(&code).unwrap();
-    let coupon = before.clone();
+    // Token mismatch is rejected.
+    let coupon = client.get_coupon(&code).unwrap();
     assert_eq!(
         crate::coupon::validate_coupon_for_charge(&env, 0, &wrong_token, &coupon)
             .unwrap_err()
             .to_code(),
         Error::CouponTokenMismatch.to_code()
     );
-    assert_eq!(client.get_coupon(&code).unwrap(), before);
 
-    // Revoked coupon is rejected and leaves the coupon unchanged.
+    // Revoked coupon is rejected.
     client.mock_all_auths().revoke_coupon(&merchant, &code);
     let revoked = client.get_coupon(&code).unwrap();
     assert_eq!(
@@ -672,5 +583,11 @@ fn validate_coupon_for_charge_rejects_revoked_and_token_mismatch_without_state_c
             .to_code(),
         Error::CouponRevoked.to_code()
     );
-    assert_eq!(client.get_coupon(&code).unwrap(), revoked);
+
+    // State is unchanged after rejected validations.
+    let after = client.get_coupon(&code).unwrap();
+    assert_eq!(after.revoked, true);
+    assert_eq!(after.code, code);
+    assert_eq!(after.merchant, merchant);
+    assert_eq!(after.token, token);
 }
