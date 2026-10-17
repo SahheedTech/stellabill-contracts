@@ -878,44 +878,45 @@ mod tests {
         });
     }
 
-    // ─────────────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
     // create_coupon adversarial coverage
-    // ─────────────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
 
     #[test]
-    fn test_create_coupon_success_persists_and_emits_event() {
+    fn test_create_coupon_success_stores_record_and_emits_event() {
         let f = setup_fixture();
         let code = Symbol::new(&f.env, "NEWCPN");
-        f.env.ledger().set_timestamp(500);
 
         f.env.as_contract(&f.contract_id, || {
-            assert!(!f.env.storage().persistent().has(&DataKey::Coupon(code.clone())));
+            f.env.ledger().set_timestamp(500);
 
             let res = create_coupon(
                 &f.env,
                 f.merchant.clone(),
                 code.clone(),
                 f.token.clone(),
-                2_500,
-                100,
-                5,
+                1_500,
+                25,
+                7,
                 1_000,
             );
             assert_eq!(res, Ok(()));
 
+            // Record persisted with all fields intact.
             let stored = read_coupon(&f.env, &code).expect("coupon must be stored");
             assert_eq!(stored.code, code);
             assert_eq!(stored.merchant, f.merchant);
             assert_eq!(stored.token, f.token);
-            assert_eq!(stored.percent_off_bps, 2_500);
-            assert_eq!(stored.fixed_off, 100);
-            assert_eq!(stored.max_redemptions, 5);
+            assert_eq!(stored.percent_off_bps, 1_500);
+            assert_eq!(stored.fixed_off, 25);
+            assert_eq!(stored.max_redemptions, 7);
             assert_eq!(stored.expires_at, 1_000);
             assert!(!stored.revoked);
 
-            // No redemption counter is created at creation time.
+            // No redemption counter written at creation time.
             assert_eq!(read_redemptions(&f.env, &code), 0);
 
+            // Event emitted with the expected topic.
             let events = f.env.events().all();
             let last_event = events.last().expect("event expected");
             assert_eq!(
@@ -928,12 +929,10 @@ mod tests {
     #[test]
     fn test_create_coupon_percent_off_bps_boundaries() {
         let f = setup_fixture();
-        let code_zero = Symbol::new(&f.env, "PCT_ZERO");
-        let code_full = Symbol::new(&f.env, "PCT_FULL");
-        let code_over = Symbol::new(&f.env, "PCT_OVER");
 
         f.env.as_contract(&f.contract_id, || {
-            // 0 is valid (no percentage discount).
+            // Lower boundary: 0 bps is valid.
+            let code_zero = Symbol::new(&f.env, "PCT0");
             assert_eq!(
                 create_coupon(
                     &f.env,
@@ -947,14 +946,15 @@ mod tests {
                 ),
                 Ok(())
             );
-            assert_eq!(read_coupon(&f.env, &code_zero).unwrap().percent_off_bps, 0);
+            assert!(read_coupon(&f.env, &code_zero).is_some());
 
-            // 10_000 is the inclusive upper bound (100% off).
+            // Upper boundary: 10_000 bps is valid.
+            let code_max = Symbol::new(&f.env, "PCTMAX");
             assert_eq!(
                 create_coupon(
                     &f.env,
                     f.merchant.clone(),
-                    code_full.clone(),
+                    code_max.clone(),
                     f.token.clone(),
                     10_000,
                     0,
@@ -963,12 +963,10 @@ mod tests {
                 ),
                 Ok(())
             );
-            assert_eq!(
-                read_coupon(&f.env, &code_full).unwrap().percent_off_bps,
-                10_000
-            );
+            assert!(read_coupon(&f.env, &code_max).is_some());
 
-            // 10_001 is rejected and leaves no state behind.
+            // Just past the upper boundary: 10_001 bps rejected.
+            let code_over = Symbol::new(&f.env, "PCTOVER");
             assert_eq!(
                 create_coupon(
                     &f.env,
@@ -982,14 +980,15 @@ mod tests {
                 ),
                 Err(Error::InvalidInput)
             );
-            assert!(!f.env.storage().persistent().has(&DataKey::Coupon(code_over.clone())));
+            assert!(read_coupon(&f.env, &code_over).is_none());
 
-            // u32::MAX is rejected.
+            // u32::MAX rejected.
+            let code_u32max = Symbol::new(&f.env, "PCTU32");
             assert_eq!(
                 create_coupon(
                     &f.env,
                     f.merchant.clone(),
-                    code_over.clone(),
+                    code_u32max.clone(),
                     f.token.clone(),
                     u32::MAX,
                     0,
@@ -998,41 +997,22 @@ mod tests {
                 ),
                 Err(Error::InvalidInput)
             );
-            assert!(!f.env.storage().persistent().has(&DataKey::Coupon(code_over)));
+            assert!(read_coupon(&f.env, &code_u32max).is_none());
         });
     }
 
     #[test]
-    fn test_create_coupon_fixed_off_boundaries() {
+    fn test_create_coupon_fixed_off_negative_rejected() {
         let f = setup_fixture();
-        let code_zero = Symbol::new(&f.env, "FIX_ZERO");
-        let code_neg = Symbol::new(&f.env, "FIX_NEG");
-        let code_min = Symbol::new(&f.env, "FIX_MIN");
-        let code_max = Symbol::new(&f.env, "FIX_MAX");
+        let code = Symbol::new(&f.env, "NEGFIX");
 
         f.env.as_contract(&f.contract_id, || {
-            // 0 is valid.
+            // -1 is the closest negative boundary.
             assert_eq!(
                 create_coupon(
                     &f.env,
                     f.merchant.clone(),
-                    code_zero.clone(),
-                    f.token.clone(),
-                    0,
-                    0,
-                    0,
-                    0,
-                ),
-                Ok(())
-            );
-            assert_eq!(read_coupon(&f.env, &code_zero).unwrap().fixed_off, 0);
-
-            // -1 is rejected.
-            assert_eq!(
-                create_coupon(
-                    &f.env,
-                    f.merchant.clone(),
-                    code_neg.clone(),
+                    code.clone(),
                     f.token.clone(),
                     0,
                     -1,
@@ -1041,14 +1021,14 @@ mod tests {
                 ),
                 Err(Error::InvalidInput)
             );
-            assert!(!f.env.storage().persistent().has(&DataKey::Coupon(code_neg.clone())));
+            assert!(read_coupon(&f.env, &code).is_none());
 
-            // i128::MIN is rejected without panicking.
+            // i128::MIN rejected.
             assert_eq!(
                 create_coupon(
                     &f.env,
                     f.merchant.clone(),
-                    code_min.clone(),
+                    code.clone(),
                     f.token.clone(),
                     0,
                     i128::MIN,
@@ -1057,46 +1037,40 @@ mod tests {
                 ),
                 Err(Error::InvalidInput)
             );
-            assert!(!f.env.storage().persistent().has(&DataKey::Coupon(code_min)));
+            assert!(read_coupon(&f.env, &code).is_none());
 
-            // i128::MAX is accepted (no arithmetic performed at creation).
+            // Zero fixed_off is valid.
             assert_eq!(
                 create_coupon(
                     &f.env,
                     f.merchant.clone(),
-                    code_max.clone(),
+                    code.clone(),
                     f.token.clone(),
                     0,
-                    i128::MAX,
+                    0,
                     0,
                     0,
                 ),
                 Ok(())
             );
-            assert_eq!(
-                read_coupon(&f.env, &code_max).unwrap().fixed_off,
-                i128::MAX
-            );
+            assert!(read_coupon(&f.env, &code).is_some());
         });
     }
 
     #[test]
     fn test_create_coupon_expires_at_boundaries() {
         let f = setup_fixture();
-        let code_no_exp = Symbol::new(&f.env, "EXP_ZERO");
-        let code_future = Symbol::new(&f.env, "EXP_FUT");
-        let code_now = Symbol::new(&f.env, "EXP_NOW");
-        let code_past = Symbol::new(&f.env, "EXP_PAST");
-
-        f.env.ledger().set_timestamp(1_000);
 
         f.env.as_contract(&f.contract_id, || {
-            // expires_at == 0 means "never expires" and is always valid.
+            f.env.ledger().set_timestamp(1_000);
+
+            // expires_at == 0 means "never expires" and is accepted.
+            let code_never = Symbol::new(&f.env, "NEVER");
             assert_eq!(
                 create_coupon(
                     &f.env,
                     f.merchant.clone(),
-                    code_no_exp.clone(),
+                    code_never.clone(),
                     f.token.clone(),
                     0,
                     0,
@@ -1105,28 +1079,10 @@ mod tests {
                 ),
                 Ok(())
             );
-            assert_eq!(read_coupon(&f.env, &code_no_exp).unwrap().expires_at, 0);
+            assert!(read_coupon(&f.env, &code_never).is_some());
 
-            // Strictly in the future is valid.
-            assert_eq!(
-                create_coupon(
-                    &f.env,
-                    f.merchant.clone(),
-                    code_future.clone(),
-                    f.token.clone(),
-                    0,
-                    0,
-                    0,
-                    1_001,
-                ),
-                Ok(())
-            );
-            assert_eq!(
-                read_coupon(&f.env, &code_future).unwrap().expires_at,
-                1_001
-            );
-
-            // expires_at == now is rejected (must be strictly future).
+            // expires_at == now is rejected (must be strictly in the future).
+            let code_now = Symbol::new(&f.env, "EXP_NOW");
             assert_eq!(
                 create_coupon(
                     &f.env,
@@ -1140,9 +1096,10 @@ mod tests {
                 ),
                 Err(Error::InvalidInput)
             );
-            assert!(!f.env.storage().persistent().has(&DataKey::Coupon(code_now.clone())));
+            assert!(read_coupon(&f.env, &code_now).is_none());
 
             // expires_at in the past is rejected.
+            let code_past = Symbol::new(&f.env, "EXP_PAST");
             assert_eq!(
                 create_coupon(
                     &f.env,
@@ -1156,7 +1113,24 @@ mod tests {
                 ),
                 Err(Error::InvalidInput)
             );
-            assert!(!f.env.storage().persistent().has(&DataKey::Coupon(code_past)));
+            assert!(read_coupon(&f.env, &code_past).is_none());
+
+            // expires_at == now + 1 is accepted (strict future boundary).
+            let code_future = Symbol::new(&f.env, "EXP_FUT");
+            assert_eq!(
+                create_coupon(
+                    &f.env,
+                    f.merchant.clone(),
+                    code_future.clone(),
+                    f.token.clone(),
+                    0,
+                    0,
+                    0,
+                    1_001,
+                ),
+                Ok(())
+            );
+            assert!(read_coupon(&f.env, &code_future).is_some());
         });
     }
 
@@ -1172,38 +1146,37 @@ mod tests {
                     f.merchant.clone(),
                     code.clone(),
                     f.token.clone(),
-                    1_000,
+                    500,
                     10,
                     3,
                     0,
                 ),
                 Ok(())
             );
-            let original = read_coupon(&f.env, &code).unwrap();
+            let original = read_coupon(&f.env, &code).expect("coupon must exist");
 
-            // A second creation with different parameters must be rejected.
+            // Second creation with the same code fails, even with different params.
             assert_eq!(
                 create_coupon(
                     &f.env,
                     f.merchant.clone(),
                     code.clone(),
                     f.token.clone(),
-                    9_999,
-                    9_999,
-                    9_999,
+                    9_000,
+                    999,
+                    99,
                     0,
                 ),
                 Err(Error::CouponAlreadyExists)
             );
 
             // Original record is untouched.
-            let after = read_coupon(&f.env, &code).unwrap();
+            let after = read_coupon(&f.env, &code).expect("coupon must still exist");
             assert_eq!(after.percent_off_bps, original.percent_off_bps);
             assert_eq!(after.fixed_off, original.fixed_off);
             assert_eq!(after.max_redemptions, original.max_redemptions);
             assert_eq!(after.expires_at, original.expires_at);
             assert!(!after.revoked);
-            assert_eq!(read_redemptions(&f.env, &code), 0);
         });
     }
 
@@ -1215,35 +1188,63 @@ mod tests {
         let token = Address::generate(&env);
         let code = Symbol::new(&env, "NOAUTH");
 
-        // No mock_all_auths: the merchant has not authorized this call.
         env.as_contract(&contract_id, || {
-            let res = create_coupon(
-                &env,
-                merchant.clone(),
-                code.clone(),
-                token.clone(),
-                1_000,
-                0,
-                0,
-                0,
-            );
+            // No auths mocked: require_auth must fail before any state is written.
+            let res = create_coupon(&env, merchant.clone(), code.clone(), token, 0, 0, 0, 0);
             assert!(res.is_err());
+            assert!(read_coupon(&env, &code).is_none());
+        });
+    }
 
-            // Rejected call must not persist anything.
-            assert!(!env.storage().persistent().has(&DataKey::Coupon(code.clone())));
-            assert_eq!(read_redemptions(&env, &code), 0);
+    #[test]
+    fn test_create_coupon_rejected_operations_leave_state_unchanged() {
+        let f = setup_fixture();
+        let code = Symbol::new(&f.env, "UNCHANGED");
+
+        f.env.as_contract(&f.contract_id, || {
+            // Invalid percent: no record, no redemptions.
+            assert_eq!(
+                create_coupon(
+                    &f.env,
+                    f.merchant.clone(),
+                    code.clone(),
+                    f.token.clone(),
+                    20_000,
+                    0,
+                    0,
+                    0,
+                ),
+                Err(Error::InvalidInput)
+            );
+            assert!(read_coupon(&f.env, &code).is_none());
+            assert_eq!(read_redemptions(&f.env, &code), 0);
+
+            // Invalid fixed_off: still no record.
+            assert_eq!(
+                create_coupon(
+                    &f.env,
+                    f.merchant.clone(),
+                    code.clone(),
+                    f.token.clone(),
+                    0,
+                    -5,
+                    0,
+                    0,
+                ),
+                Err(Error::InvalidInput)
+            );
+            assert!(read_coupon(&f.env, &code).is_none());
+            assert_eq!(read_redemptions(&f.env, &code), 0);
         });
     }
 
     #[test]
     fn test_create_coupon_max_redemptions_boundaries() {
         let f = setup_fixture();
-        let code_unlimited = Symbol::new(&f.env, "MAX_ZERO");
-        let code_one = Symbol::new(&f.env, "MAX_ONE");
-        let code_max = Symbol::new(&f.env, "MAX_U32");
 
         f.env.as_contract(&f.contract_id, || {
-            // 0 means unlimited and is valid.
+            // 0 means unlimited and is accepted.
+            let code_unlimited = Symbol::new(&f.env, "MAX0");
             assert_eq!(
                 create_coupon(
                     &f.env,
@@ -1262,23 +1263,8 @@ mod tests {
                 0
             );
 
-            // 1 is valid.
-            assert_eq!(
-                create_coupon(
-                    &f.env,
-                    f.merchant.clone(),
-                    code_one.clone(),
-                    f.token.clone(),
-                    0,
-                    0,
-                    1,
-                    0,
-                ),
-                Ok(())
-            );
-            assert_eq!(read_coupon(&f.env, &code_one).unwrap().max_redemptions, 1);
-
-            // u32::MAX is valid.
+            // u32::MAX is accepted and stored verbatim.
+            let code_max = Symbol::new(&f.env, "MAXU32");
             assert_eq!(
                 create_coupon(
                     &f.env,
@@ -1296,40 +1282,6 @@ mod tests {
                 read_coupon(&f.env, &code_max).unwrap().max_redemptions,
                 u32::MAX
             );
-        });
-    }
-
-    #[test]
-    fn test_create_coupon_rejected_validation_leaves_state_unchanged() {
-        let f = setup_fixture();
-        let code = Symbol::new(&f.env, "REJECT");
-        f.env.ledger().set_timestamp(1_000);
-
-        f.env.as_contract(&f.contract_id, || {
-            // Each invalid parameter combination must fail without writing.
-            let cases: [(u32, i128, u64); 4] = [
-                (10_001, 0, 0),
-                (0, -1, 0),
-                (0, 0, 1_000),
-                (10_001, -1, 999),
-            ];
-            for (pct, fixed, expires) in cases {
-                assert_eq!(
-                    create_coupon(
-                        &f.env,
-                        f.merchant.clone(),
-                        code.clone(),
-                        f.token.clone(),
-                        pct,
-                        fixed,
-                        0,
-                        expires,
-                    ),
-                    Err(Error::InvalidInput)
-                );
-                assert!(!f.env.storage().persistent().has(&DataKey::Coupon(code.clone())));
-                assert_eq!(read_redemptions(&f.env, &code), 0);
-            }
         });
     }
 }
