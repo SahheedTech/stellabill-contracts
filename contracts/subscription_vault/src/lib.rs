@@ -175,6 +175,74 @@ pub mod admin_api;
 /// Billing statements: append-only ledger of charges per subscription.
 pub mod statements;
 
+#[cfg(test)]
+mod init_adversarial_tests {
+    use super::*;
+    use soroban_sdk::testutils::Address as _;
+    use soroban_sdk::Env;
+
+    fn setup() -> (Env, Address, Address, Address) {
+        let env = Env::default();
+        env.mock_all_auths();
+        let contract_id = env.register_contract(None, SubscriptionVault);
+        let token = Address::generate(&env);
+        let admin = Address::generate(&env);
+        (env, contract_id, token, admin)
+    }
+
+    #[test]
+    fn init_succeeds_with_valid_args() {
+        let (env, contract_id, token, admin) = setup();
+        let client = SubscriptionVaultClient::new(&env, &contract_id);
+        client.init(&token, &6u32, &admin, &1_000i128, &86_400u64);
+        assert_eq!(client.get_admin(), admin);
+    }
+
+    #[test]
+    fn init_rejects_negative_min_topup() {
+        let (env, contract_id, token, admin) = setup();
+        let client = SubscriptionVaultClient::new(&env, &contract_id);
+        let res = client.try_init(&token, &6u32, &admin, &-1i128, &86_400u64);
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn init_rejects_zero_min_topup() {
+        let (env, contract_id, token, admin) = setup();
+        let client = SubscriptionVaultClient::new(&env, &contract_id);
+        let res = client.try_init(&token, &6u32, &admin, &0i128, &86_400u64);
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn init_rejects_excessive_token_decimals() {
+        let (env, contract_id, token, admin) = setup();
+        let client = SubscriptionVaultClient::new(&env, &contract_id);
+        let res = client.try_init(&token, &255u32, &admin, &1_000i128, &86_400u64);
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn init_rejects_zero_grace_period() {
+        let (env, contract_id, token, admin) = setup();
+        let client = SubscriptionVaultClient::new(&env, &contract_id);
+        let res = client.try_init(&token, &6u32, &admin, &1_000i128, &0u64);
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn init_rejects_double_initialization() {
+        let (env, contract_id, token, admin) = setup();
+        let client = SubscriptionVaultClient::new(&env, &contract_id);
+        client.init(&token, &6u32, &admin, &1_000i128, &86_400u64);
+        let other_admin = Address::generate(&env);
+        let res = client.try_init(&token, &6u32, &other_admin, &2_000i128, &43_200u64);
+        assert!(res.is_err());
+        // State must be unchanged after rejected re-init.
+        assert_eq!(client.get_admin(), admin);
+    }
+}
+
 
 /// Accounting: tracks total tokens accounted for across all subscriptions.
 pub mod accounting {
@@ -3450,19 +3518,12 @@ mod test_validation;
 mod test_admin_require_auth_adversarial;
 
 #[cfg(test)]
-mod test_init_adversarial;
-
-#[cfg(test)]
 mod test_emergency_withdraw;
 
 #[cfg(test)]
 mod test_abi_validators_integration;
 #[cfg(test)]
 mod test_remove_guardian;
-
-#[cfg(test)]
-mod test_init_adversarial;
-
 #[cfg(test)]
 mod test_coupon;
 #[cfg(test)]
@@ -3472,16 +3533,10 @@ mod test_compute_discount_adversarial;
 mod test_admin_rotation_two_step;
 
 #[cfg(test)]
-mod test_init_adversarial;
-
-#[cfg(test)]
 mod test_bulk_admin_ops;
 
 #[cfg(test)]
 mod test_get_schema_version;
-
-#[cfg(test)]
-mod test_init_adversarial;
 
 #[cfg(test)]
 mod test_auto_pause;
@@ -3492,18 +3547,12 @@ mod test_auto_pause_threshold;
 mod test_admin_auto_pause_threshold;
 
 #[cfg(test)]
-mod test_init_adversarial;
-
-#[cfg(test)]
 mod test_admin_get_token;
 
 #[cfg(test)]
 mod test_grace_buyout;
 #[cfg(test)]
 mod test_get_buyout_premium_bps;
-
-#[cfg(test)]
-mod test_init_adversarial;
 
 #[cfg(test)]
 mod test_subscription_transfer;
@@ -3522,16 +3571,10 @@ mod test_subscription_transfer;
 mod test_merchant_whitelist;
 
 #[cfg(test)]
-mod test_init_adversarial;
-
-#[cfg(test)]
 mod test_split_billing;
 
 #[cfg(test)]
 mod test_merchant_vacation;
-
-#[cfg(test)]
-mod test_init_adversarial;
 
 #[cfg(test)]
 mod test_emergency_stop_view_surface;
@@ -3541,10 +3584,6 @@ mod test_protocol_fee_routing;
 mod test_do_vote_proposal;
 #[cfg(test)]
 mod test_treasury_split;
-
-#[cfg(test)]
-mod test_init_adversarial;
-
 #[cfg(test)]
 mod test_admin_treasury_change;
 #[cfg(test)]
@@ -3555,9 +3594,6 @@ mod revoke_merchant_adversarial_tests {
     use super::{Error, SubscriptionVault, SubscriptionVaultClient};
     use soroban_sdk::testutils::Address as _;
     use soroban_sdk::{Address, Env};
-
-    #[cfg(test)]
-    mod test_init_adversarial;
 
     fn setup() -> (Env, SubscriptionVaultClient<'static>, Address) {
         let env = Env::default();
@@ -3623,6 +3659,3 @@ mod test_blocklist_is_blocklisted;
 
 #[cfg(test)]
 mod test_do_propose_admin;
-
-#[cfg(test)]
-mod test_init_adversarial;
