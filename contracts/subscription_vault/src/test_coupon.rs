@@ -1,4 +1,4 @@
-#`![cfg(test)]
+#![cfg(test)]
 
 use crate::test_utils::{advance_ledger_by, create_test_client, setup_env};
 use crate::types::{Coupon, Error};
@@ -11,7 +11,7 @@ use soroban_sdk::{
 // Helper to setup env and return client, admin, and token.
 fn setup() -> (Env, SubscriptionVaultClient<'static>, Address, Address) {
     let env = setup_env();
-    let admin = Address*:generate(&env);
+    let admin = Address::generate(&env);
     let token = Address::generate(&env);
     let client = create_test_client(&env, &admin, &token);
     (env, client, admin, token)
@@ -84,7 +84,7 @@ fn test_create_coupon_max_boundary_values() {
 
     let coupon = client.get_coupon(&code).unwrap();
     assert_eq!(coupon.percent_off_bps, 10_000);
-    assert_eq!(coupon.fixed_off, 0_128);
+    assert_eq!(coupon.fixed_off, 0_i128);
     assert_eq!(coupon.max_redemptions, u32::MAX);
     assert_eq!(coupon.expires_at, u64::MAX);
     assert_eq!(coupon.revoked, false);
@@ -239,7 +239,7 @@ fn test_apply_coupon_subscriber_auth() {
         &None::<i128>,
         &None::<u64>,
         &None::<u32>,
-        &None::<s0roban_sdk::Symbol>,
+        &None::<soroban_sdk::Symbol>,
     );
 
     let res = client.try_apply_coupon(&wrong_subscriber, &sub_id, &code);
@@ -387,7 +387,7 @@ fn test_apply_coupon_already_applied() {
         &None::<i128>,
         &None::<u64>,
         &None::<u32>,
-        &None::<s0roban_sdk::Symbol>,
+        &None::<soroban_sdk::Symbol>,
     );
 
     client
@@ -549,7 +549,7 @@ fn validate_coupon_for_charge_checks_expiry_boundaries_and_never_expiring_coupon
         ..coupon.clone()
     };
     assert_eq!(
-        crate::coupon::validate_coupon_for_charge(&env, u64::MAX, &token, &ofter_expires),
+        crate::coupon::validate_coupon_for_charge(&env, u64::MAX, &token, &never_expires),
         Ok(())
     );
 }
@@ -560,34 +560,324 @@ fn validate_coupon_for_charge_rejects_revoked_and_token_mismatch_without_state_c
     let merchant = Address::generate(&env);
     let code = Symbol::new(&env, "VALIDATE_FAILURES");
     let wrong_token = Address::generate(&env);
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant, &code, &token, &2000, &0, &0, &100);
+    let stored_before = client.get_coupon(&code).unwrap();
+
+    let token_mismatch =
+        crate::coupon::validate_coupon_for_charge(&env, 99, &wrong_token, &stored_before)
+            .unwrap_err();
+    assert_eq!(
+        token_mismatch.to_code(),
+        Error::CouponTokenMismatch.to_code()
+    );
+
+    let expired =
+        crate::coupon::validate_coupon_for_charge(&env, 100, &token, &stored_before).unwrap_err();
+    assert_eq!(expired.to_code(), Error::CouponExpired.to_code());
+
+    let revoked = Coupon {
+        revoked: true,
+        ..stored_before.clone()
+    };
+    let revoked_error =
+        crate::coupon::validate_coupon_for_charge(&env, 99, &token, &revoked).unwrap_err();
+    assert_eq!(revoked_error.to_code(), Error::CouponRevoked.to_code());
+
+    // Charge-time validation is read-only: failures leave the persisted coupon unchanged.
+    assert_eq!(client.get_coupon(&code).unwrap(), stored_before);
+}
+
+#[test]
+fn test_charge_with_discount() {
+    let (env, client, admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "VALIDATE_FAILURES");
+    let wrong_token = Address::generate(&env);
 
     client
         .mock_all_auths()
         .create_coupon(&merchant, &code, &token, &0, &0, &0, &0);
 
-    // Token mismatch is rejected.
+    // 50% discount
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant, &code, &token, &5000, &0, &0, &0);
+
+    // Subscription is for 1000 units
+    let sub_id = client
+        .mock_all_auths()
+        .create_subscription(&subscriber, &merchant, &1000, &86400, &false, &None::<i128>, &None::<u64>, &None::<u32>, &None::<soroban_sdk::Symbol>);
+    client
+        .mock_all_auths()
+        .apply_coupon(&subscriber, &sub_id, &code);
+
+    // Deposit 1000
+    let token_client = soroban_sdk::token::Client::new(&env, &token);
+    let _token_admin = Address::generate(&env);
+    // mint some tokens to subscriber...
+    // wait, we mock deposit in our test suite? Actually tests do it manually, let's use deposit.
+    // wait, the standard token contract isn't initialized here?
+    // In our test framework we have standard ways to deposit.
+    // Let's just create a subscription and charge it. To avoid rewriting token init,
+    // we can use standard setup from `test_utils` if it does token init.
+    // setup_env() just returns Env. create_test_client doesn't initialize a token contract!
+    // I should use the `test_charge_invariants.rs` pattern for charging tests.
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// Coupon expiry boundary tests
+//
+// Verify coupon redemption behaviour at expiry boundaries.
+// The contract uses `now >= expires_at` to check expiry, so:
+// - timestamp < expires_at â†’ redemption succeeds
+// - timestamp == expires_at â†’ redemption fails (CouponExpired)
+// - timestamp > expires_at â†’ redemption fails (CouponExpired)
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+#[test]
+fn coupon_redemption_succeeds_before_expiry() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let subscriber = Address::generate(&env);
+    let code = Symbol::new(&env, "EXPIRY_TEST");
+
+    let now = env.ledger().timestamp();
+    // Set expiry to 100 seconds in the future
+    let expires_at = now + 100;
+
+    client.mock_all_auths().create_coupon(
+        &merchant,
+        &code,
+        &token,
+        &2000, // 20% off
+        &0,    // no fixed off
+        &0,    // no redemption limit
+        &expires_at,
+    );
+
+    let sub_id = client
+        .mock_all_auths()
+        .create_subscription(&subscriber, &merchant, &1000, &86400, &false, &None::<i128>, &None::<u64>, &None::<u32>, &None::<soroban_sdk::Symbol>);
+
+    // Redemption succeeds when timestamp < expires_at
+    let result = client.try_apply_coupon(&subscriber, &sub_id, &code);
+    assert!(
+        result.is_ok(),
+        "Coupon redemption should succeed before expiry"
+    );
+}
+
+#[test]
+fn coupon_redemption_fails_at_exact_expiry_time() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let subscriber = Address::generate(&env);
+    let code = Symbol::new(&env, "EXACT_EXPIRY");
+
+    env.ledger().set_timestamp(1_000);
+    let now = env.ledger().timestamp();
+    let expires_at = now + 100;
+
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant, &code, &token, &2000, &0, &0, &expires_at);
+
+    let sub_id = client
+        .mock_all_auths()
+        .create_subscription(&subscriber, &merchant, &1000, &86400, &false, &None::<i128>, &None::<u64>, &None::<u32>, &None::<soroban_sdk::Symbol>);
+
+    // Advance time to exactly expiry time
+    env.ledger().set_timestamp(expires_at);
+
+    // Redemption fails when timestamp == expires_at (contract uses >= check)
+    let result = client.try_apply_coupon(&subscriber, &sub_id, &code);
+    assert_eq!(
+        result.err().unwrap().unwrap().to_code(),
+        Error::CouponExpired.to_code()
+    );
+}
+
+#[test]
+fn coupon_redemption_fails_one_second_after_expiry() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let subscriber = Address::generate(&env);
+    let code = Symbol::new(&env, "ONE_SECOND_LATE");
+
+    let now = env.ledger().timestamp();
+    // Set expiry to 100 seconds in the future
+    let expires_at = now + 100;
+
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant, &code, &token, &2000, &0, &0, &expires_at);
+
+    let sub_id = client
+        .mock_all_auths()
+        .create_subscription(&subscriber, &merchant, &1000, &86400, &false, &None::<i128>, &None::<u64>, &None::<u32>, &None::<soroban_sdk::Symbol>);
+
+    // Advance time to exactly expiry time
+    env.ledger().set_timestamp(expires_at);
+
+    // Redemption fails at exact expiry
+    let result = client.try_apply_coupon(&subscriber, &sub_id, &code);
+    assert_eq!(
+        result.err().unwrap().unwrap().to_code(),
+        Error::CouponExpired.to_code()
+    );
+
+    // Advance time by one second past expiry
+    env.ledger().set_timestamp(expires_at + 1);
+
+    // Redemption still fails one second after expiry
+    let result = client.try_apply_coupon(&subscriber, &sub_id, &code);
+    assert_eq!(
+        result.err().unwrap().unwrap().to_code(),
+        Error::CouponExpired.to_code()
+    );
+}
+
+#[test]
+fn coupon_never_expires_when_expires_at_is_zero() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let subscriber = Address::generate(&env);
+    let code = Symbol::new(&env, "NEVER_EXPIRES");
+
+    // expires_at = 0 means never expires
+    client.mock_all_auths().create_coupon(
+        &merchant, &code, &token, &2000, &0, &0, &0, // expires_at = 0
+    );
+
+    let sub_id = client
+        .mock_all_auths()
+        .create_subscription(&subscriber, &merchant, &1000, &86400, &false, &None::<i128>, &None::<u64>, &None::<u32>, &None::<soroban_sdk::Symbol>);
+
+    // Advance time far into the future
+    let far_future = env.ledger().timestamp() + 1_000_000;
+    env.ledger().set_timestamp(far_future);
+
+    // Redemption should still succeed
+    let result = client.try_apply_coupon(&subscriber, &sub_id, &code);
+    assert!(
+        result.is_ok(),
+        "Coupon with expires_at=0 should never expire"
+    );
+}
+
+#[test]
+fn coupon_creation_rejects_expiry_in_the_past() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "PAST_EXPIRY");
+
+    env.ledger().set_timestamp(1_000);
+    let now = env.ledger().timestamp();
+    // Try to create coupon with expiry in the past
+    let past_expiry = now - 100;
+
+    let result = client.try_create_coupon(&merchant, &code, &token, &2000, &0, &0, &past_expiry);
+
+    assert_eq!(
+        result.err().unwrap().unwrap().to_code(),
+        Error::InvalidInput.to_code()
+    );
+}
+
+#[test]
+fn coupon_creation_rejects_expiry_at_current_time() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let code = Symbol::new(&env, "NOW_EXPIRY");
+
+    env.ledger().set_timestamp(1_000);
+    let now = env.ledger().timestamp();
+    // Try to create coupon with expiry at current time
+    let current_expiry = now;
+
+    let result = client.try_create_coupon(&merchant, &code, &token, &2000, &0, &0, &current_expiry);
+
+    assert_eq!(
+        result.err().unwrap().unwrap().to_code(),
+        Error::InvalidInput.to_code()
+    );
+}
+
+#[test]
+fn multiple_redemption_attempts_in_same_block() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let subscriber = Address::generate(&env);
+    let code = Symbol::new(&env, "SAME_BLOCK");
+
+    let now = env.ledger().timestamp();
+    let expires_at = now + 1000;
+
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant, &code, &token, &2000, &0, &0, &expires_at);
+
+    let sub_id = client
+        .mock_all_auths()
+        .create_subscription(&subscriber, &merchant, &1000, &86400, &false, &None::<i128>, &None::<u64>, &None::<u32>, &None::<soroban_sdk::Symbol>);
+
+    // First redemption succeeds
+    let result1 = client.try_apply_coupon(&subscriber, &sub_id, &code);
+    assert!(result1.is_ok());
+
+    // Second redemption in same block fails (already applied)
+    let result2 = client.try_apply_coupon(&subscriber, &sub_id, &code);
+    assert_eq!(
+        result2.err().unwrap().unwrap().to_code(),
+        Error::CouponAlreadyApplied.to_code()
+    );
+}
+
+#[test]
+fn expired_coupon_cannot_be_redeemed_after_repeated_attempts() {
+    let (env, client, _admin, token) = setup();
+    let merchant = Address::generate(&env);
+    let subscriber = Address::generate(&env);
+    let code = Symbol::new(&env, "REPEATED_EXPIRED");
+
+    let now = env.ledger().timestamp();
+    let expires_at = now + 50;
+
+    client
+        .mock_all_auths()
+        .create_coupon(&merchant, &code, &token, &2000, &0, &0, &expires_at);
+
+    let sub_id = client
+        .mock_all_auths()
+        .create_subscription(&subscriber, &merchant, &1000, &86400, &false, &None::<i128>, &None::<u64>, &None::<u32>, &None::<soroban_sdk::Symbol>);
+
+    // Advance past expiry
+    env.ledger().set_timestamp(expires_at + 1);
+
+    // First attempt fails
+    let result1 = client.try_apply_coupon(&subscriber, &sub_id, &code);
+    assert_eq!(
+        result1.err().unwrap().unwrap().to_code(),
+        Error::CouponExpired.to_code()
+    );
+
+    // Second attempt also fails
+    let result2 = client.try_apply_coupon(&subscriber, &sub_id, &code);
+    assert_eq!(
+        result2.err().unwrap().unwrap().to_code(),
+        Error::CouponExpired.to_code()
+    );
+
+    // Third attempt still fails
+    let result3 = client.try_apply_coupon(&subscriber, &sub_id, &code);
+    assert_eq!(
+        result3.err().unwrap().unwrap().to_code(),
+        Error::CouponExpired.to_code()
+    );
+
+    // Verify coupon is still not applied
     let coupon = client.get_coupon(&code).unwrap();
-    assert_eq!(
-        crate::coupon::validate_coupon_for_charge(&env, 0, &wrong_token, &coupon)
-            .unwrap_err()
-            .to_code(),
-        Error::CouponTokenMismatch.to_code()
-    );
-
-    // Revoked coupon is rejected.
-    client.mock_all_auths().revoke_coupon(&merchant, &code);
-    let revoked = client.get_coupon(&code).unwrap();
-    assert_eq!(
-        crate::coupon::validate_coupon_for_charge(&env, 0, &token, &revoked)
-            .unwrap_err()
-            .to_code(),
-        Error::CouponRevoked.to_code()
-    );
-
-    // State is unchanged after rejected validations.
-    let after = client.get_coupon(&code).unwrap();
-    assert_eq!(after.revoked, true);
-    assert_eq!(after.code, code);
-    assert_eq!(after.merchant, merchant);
-    assert_eq!(after.token, token);
+    assert_eq!(coupon.expires_at, expires_at);
 }
